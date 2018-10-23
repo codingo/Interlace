@@ -3,6 +3,7 @@ import sys
 from lib.core.input import InputParser, InputHelper
 from lib.core.output import OutputHelper, Level
 
+
 def main():
     parser = InputParser()
     arguments = parser.parse(sys.argv[1:])

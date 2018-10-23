@@ -11,6 +11,14 @@ class InputHelper(object):
             return open(arg, 'r')  # return an open file handle
 
     @staticmethod
+    def check_positive(parser, arg):
+        ivalue = int(arg)
+        if ivalue <= 0:
+            raise parser.ArgumentTypeError("%s is not a valid positive integer!" % arg)
+
+        return arg
+
+    @staticmethod
     def process_targets(arguments):
         targets = set()
 
@@ -59,6 +67,13 @@ class InputParser(object):
             type=lambda x: InputHelper.readable_file(parser, x)
         )
 
+        parser.add_argument(
+            '-threads', dest='threads', required=False,
+            help="Specify the maximum number of threads to run (DEFAULT:5).",
+            default=5,
+            type=lambda x: InputHelper.check_positive(parser, x)
+        )
+
         commands = parser.add_mutually_exclusive_group(required=True)
         commands.add_argument(
             '-c', dest='command',
@@ -70,25 +85,6 @@ class InputParser(object):
             help='Specify a list of commands to execute',
             metavar="FILE",
             type=lambda x: InputHelper.readable_file(parser, x)
-        )
-
-        output = parser.add_mutually_exclusive_group()
-        output.add_argument(
-            '-oN', dest='output_normal',
-            help='Normal output printed to a file when the -oN option is '
-                 'specified with a filename argument.'
-        )
-
-        output.add_argument(
-            '-oJ', dest='output_json',
-            help='JSON output printed to a file when the -oJ option is '
-                 'specified with a filename argument.'
-        )
-
-        output.add_argument(
-            '-oG', dest='output_grepable',
-            help='Grepable output printed to a file when the -oG option is '
-                 'specified with a filename argument.'
         )
 
 
