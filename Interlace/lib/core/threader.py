@@ -23,12 +23,13 @@ class Worker(object):
 
 
 class Pool(object):
-    def __init__(self, max_workers, queue, timeout):
+    def __init__(self, max_workers, queue, timeout, output):
         self.queue = queue
         self.workers = [Worker(self) for w in range(max_workers)]
         self.timeout = timeout
+        self.output = output
 
-    def run(self, command):
+    def run(self):
         while True:
 
             # make sure resources are available

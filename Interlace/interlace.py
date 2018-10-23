@@ -6,24 +6,24 @@ from lib.core.threader import Pool
 
 
 def build_queue(arguments, output):
-    queue = ""
+    queue = list()
     for target in InputHelper.process_targets(arguments):
         for command in InputHelper.process_commands(arguments):
             output.terminal(Level.VERBOSE, target, command, "Added to Queue")
-            queue += command
+            queue.append(command)
     return queue
 
 
 def main():
     parser = InputParser()
     arguments = parser.parse(sys.argv[1:])
+
     output = OutputHelper(arguments)
 
     output.print_banner()
 
-    #pool = Pool(arguments.threads, )
-    pool = build_queue(arguments, output)
-    print(pool)
+    pool = Pool(arguments.threads, build_queue(arguments, output), arguments.timeout, output)
+    pool.run()
 
 
 if __name__ == "__main__":
