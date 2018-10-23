@@ -33,8 +33,20 @@ The following varaibles will be replaced in commands at runtime:
 | $realport | Replaced with the real port variable from interlace                 |
 
 # Usage Examples
-Run a virtual host scan against each host in a file, whilst also limiting scans at any one time to 50 maximum threads:
+## Max Virtual Host Scanning Example
+Run a virtual host scan against each host in a file (target-lst.txt), whilst also limiting scans at any one time to 50 maximum threads:
+### Example 1 - direct command
+```bash
+interlace -tL ./target-list.txt -c "vhostscan -t $target -oN $output/$target-vhosts.txt" -o ~/Bounties/Targets/ -threads 50
+```
+### Example 2- command file
+To run the same command as above, but using a command file, this would be done using:
+```bash
+interlace -cL ./vhosts-commands.txt -tL ./target-list.txt -threads 50 -o ~/Bounties/Targets/
+```
+This presumes that the contents of the command file is:
+```
+vhostscan -t $target -oN $output/$target-vhosts.txt
+```
 
-```
-interlace -c "vhostscan -t $target -oN $output/$target-vhosts.txt" -o ~/Bounties/Targets/ -threads 50
-```
+This would output a file for each target in the specified output folder.
