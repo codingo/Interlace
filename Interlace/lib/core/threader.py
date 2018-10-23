@@ -1,23 +1,18 @@
 import threading
-import subprocess
+import os
 
 
 class Worker(object):
     def __init__(self, pool):
         self.pool = pool
 
-    def __call__(self, task):
+    def __call__(self, task, output, timeout):
         self.run_task(task)
-        self.pool.workers.add(self)
+        self.pool.workers.append(self)
 
-    def run_task(self, task):
-        try:
-            subprocess.run(task)
-        except subprocess.TimeoutExpired:
-            self.pool.output.terminal(3, "", task, message="Timeout when running %s" % task)
-        except subprocess.CalledProcessError:
-            self.pool.output.terminal(3, "", task, message="Process error when running %s"
-                                                      % task)
+    @staticmethod
+    def run_task(task):
+        os.system(task)
 
 
 class Pool(object):
@@ -31,8 +26,12 @@ class Pool(object):
         while True:
 
             # make sure resources are available
-            if not self.queue or not self.workers:
+            if not self.workers:
                 continue
+
+            # check if the queue is empty
+            if not self.queue:
+                break
 
             # get a worker
             worker = self.workers.pop(0)
