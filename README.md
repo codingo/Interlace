@@ -25,12 +25,12 @@ A threading management application that allows controlled execution of multiple 
 # Variable Replacements
 The following varaibles will be replaced in commands at runtime:
 
-| Variable | Replacement                                                         |
-|----------|---------------------------------------------------------------------|
-| $target  | Replaced with the target that the current thread is running against |
-| $output  | Replaced with the output folder variable from interlace             |
-| $port    | Replaced with the port variable from interlace                      |
-| $port    | Replaced with the real port variable from interlace                 |
+| Variable  | Replacement                                                         |
+|-----------|---------------------------------------------------------------------|
+| $target   | Replaced with the target that the current thread is running against |
+| $output   | Replaced with the output folder variable from interlace             |
+| $port     | Replaced with the port variable from interlace                      |
+| $realport | Replaced with the real port variable from interlace                 |
 
 # Usage Examples
 Run a virtual host scan against each host in a file, whilst also limiting scans at any one time to 50 maximum threads:
