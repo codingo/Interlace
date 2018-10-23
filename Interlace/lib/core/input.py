@@ -35,7 +35,7 @@ class InputHelper(object):
         commands = set()
 
         if arguments.command:
-            commands.add(arguments.target)
+            commands.add(arguments.command)
         else:
             for command in arguments.command_list:
                 commands.add(command.strip())
@@ -69,10 +69,18 @@ class InputParser(object):
 
         parser.add_argument(
             '-threads', dest='threads', required=False,
-            help="Specify the maximum number of threads to run (DEFAULT:5).",
+            help="Specify the maximum number of threads to run (DEFAULT:5)",
             default=5,
             type=lambda x: InputHelper.check_positive(parser, x)
         )
+
+        parser.add_argument(
+            '-timeout', dest='timeout', required=False,
+            help="Command timeout in seconds (DEFAULT:600)",
+            default=600,
+            type=lambda x: InputHelper.check_positive(parser, x)
+        )
+
 
         commands = parser.add_mutually_exclusive_group(required=True)
         commands.add_argument(
