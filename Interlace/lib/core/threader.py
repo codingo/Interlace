@@ -3,22 +3,20 @@ import subprocess
 
 
 class Worker(object):
-    def __init__(self, pool, output, timeout):
+    def __init__(self, pool):
         self.pool = pool
-        self.output = output
-        self.timeout = timeout
 
     def __call__(self, task):
-        self.run_task(task, self.timeout)
+        self.run_task(task)
         self.pool.workers.add(self)
 
-    def run_task(self, task, timeout):
+    def run_task(self, task):
         try:
             subprocess.run(task)
         except subprocess.TimeoutExpired:
-            self.output.terminal(3, "", task, message="Timeout when running %s" % task)
+            self.pool.output.terminal(3, "", task, message="Timeout when running %s" % task)
         except subprocess.CalledProcessError:
-            self.output.terminal(3, "", task, message="Process error when running %s"
+            self.pool.output.terminal(3, "", task, message="Process error when running %s"
                                                       % task)
 
 
@@ -43,5 +41,5 @@ class Pool(object):
             task = self.queue.pop(0)
 
             # run
-            thread = threading.Thread(worker, args=(task, self.output, self.timeout))
+            thread = threading.Thread(target=worker, args=(task, self.output, self.timeout))
             thread.start()
