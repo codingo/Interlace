@@ -34,7 +34,7 @@ The following varaibles will be replaced in commands at runtime:
 
 # Usage Examples
 ## Max Virtual Host Scanning Example
-Run a virtual host scan against each host in a file (target-lst.txt), whilst also limiting scans at any one time to 50 maximum threads:
+Run a [virtual host scan](https://github.com/codingo/VHostScan) against each host in a file (target-lst.txt), whilst also limiting scans at any one time to 50 maximum threads:
 ### Example 1 - direct command
 ```bash
 interlace -tL ./target-list.txt -c "vhostscan -t $target -oN $output/$target-vhosts.txt" -o ~/Bounties/Targets/ -threads 50
