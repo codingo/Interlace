@@ -13,7 +13,9 @@ A threading management application that allows controlled execution of multiple 
 | -timeout   | Specify a timeout value in seconds for any one thread (DEFAULT:600)                                          |
 | -c         | Specify a single command to execute over each target or domain                                               |
 | -cL        | Specify a list of commands to execute over each target or domain                                             |
-| -o         | Specify an output folder that can be used in commands                                                        |
+| -o         | Specify an output folder variable that can be used in commands                                               |
+| -p         | Specify a port variable that can be used in commands                                                         |
+| -rp        | Specify a real port variable that can be used in commands                                                    |
 | --no-cidr  | If set then CIDR notation in a target file will not be automatically be expanded into individual hosts.      |
 | --no-color | If set then any foreground or background colours will be stripped out                                        |
 | --silent   | If set then only important information will be displayed and banners and other information will be redacted. |
@@ -26,7 +28,9 @@ The following varaibles will be replaced in commands at runtime:
 | Variable | Replacement                                                         |
 |----------|---------------------------------------------------------------------|
 | $target  | Replaced with the target that the current thread is running against |
-| $output  | Replaced with the target that the current thread is running against |
+| $output  | Replaced with the output folder variable from interlace             |
+| $port    | Replaced with the port variable from interlace                      |
+| $port    | Replaced with the real port variable from interlace                 |
 
 # Usage Examples
 Run a virtual host scan against each host in a file, whilst also limiting scans at any one time to 50 maximum threads:
