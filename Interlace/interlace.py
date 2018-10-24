@@ -2,7 +2,7 @@
 import sys
 from lib.core.input import InputParser, InputHelper
 from lib.core.output import OutputHelper, Level
-from lib.core.threader import Pool
+from lib.threader import Pool
 
 
 def build_queue(arguments, output):
