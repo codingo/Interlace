@@ -33,16 +33,26 @@ The following varaibles will be replaced in commands at runtime:
 | $realport | Replaced with the real port variable from interlace                 |
 
 # Usage Examples
+## CIDR notation with an application that doesn't support it
+Interlace automatically expands CIDR notation when starting threads (unless the --no-cidr flag is passed). This allows you to pass CIDR notation to a variety of applications:
+
+### Example 1 - direct command
+To run a virtual host scan against every target within 192.168.12.0/24 you could use:
+```bash
+interlace -t 192.168.12.0/24 -c "vhostscan $target -oN $output/$target-vhosts.txt" -o ~/scans/ -threads 50
+```
+This is despite VHostScan not having any inbuilt CIDR notation support. Since Interlace expands the notation before building a queue of threads, VHostScan for all intents is only receiving a list of direct IP addresses to scan.
+
 ## Max Virtual Host Scanning Example
 Run a [virtual host scan](https://github.com/codingo/VHostScan) against each host in a file (target-lst.txt), whilst also limiting scans at any one time to 50 maximum threads:
 ### Example 1 - direct command
 ```bash
-interlace -tL ./target-list.txt -c "vhostscan -t $target -oN $output/$target-vhosts.txt" -o ~/Bounties/Targets/ -threads 50
+interlace -tL ./target-list.txt -c "vhostscan -t $target -oN $output/$target-vhosts.txt" -o ~/scans/ -threads 50
 ```
 ### Example 2- command file
 To run the same command as above, but using a command file, this would be done using:
 ```bash
-interlace -cL ./vhosts-commands.txt -tL ./target-list.txt -threads 50 -o ~/Bounties/Targets/
+interlace -cL ./vhosts-commands.txt -tL ./target-list.txt -threads 50 -o ~/scans
 ```
 This presumes that the contents of the command file is:
 ```
