@@ -36,8 +36,7 @@ The following varaibles will be replaced in commands at runtime:
 ## CIDR notation with an application that doesn't support it
 Interlace automatically expands CIDR notation when starting threads (unless the --no-cidr flag is passed). This allows you to pass CIDR notation to a variety of applications:
 
-### Example 1 - direct command
-To run a virtual host scan against every target within 192.168.12.0/24 you could use:
+To run a virtual host scan against every target within 192.168.12.0/24 using a direct command you could use:
 ```bash
 interlace -t 192.168.12.0/24 -c "vhostscan $target -oN $output/$target-vhosts.txt" -o ~/scans/ -threads 50
 ```
