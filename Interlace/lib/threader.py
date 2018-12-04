@@ -25,6 +25,9 @@ class Worker(object):
 
 class Pool(object):
     def __init__(self, max_workers, queue, timeout, output):
+        
+        # convert stdin input to integer
+        max_workers = int(max_workers)
 
         # check if there are enough workers
         if max_workers <= 0:
