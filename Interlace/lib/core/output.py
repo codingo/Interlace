@@ -28,7 +28,7 @@ class OutputHelper(object):
         formatting = {
             0: Color('{autoblue}[VERBOSE]{/autoblue}'),
             1: Color('{autogreen}[THREAD]{/autogreen}'),
-            3: Color('{autobgyellow}{autored}[ERROR]{/autobgyellow}{/autored}')
+            3: Color('{autobgyellow}{autored}[ERROR]{/autored}{/autobgyellow}')
         }
 
         leader = formatting.get(level, '[#]')
