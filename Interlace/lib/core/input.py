@@ -19,16 +19,6 @@ class InputHelper(object):
         return arg
 
     @staticmethod
-    def expand_targets(targets, dont_expand_cidr):
-        if not dont_expand_cidr:
-            # expand CIDR from net addr
-            pass
-        # expand comma notation
-
-        # return list of unique hosts
-        return targets
-
-    @staticmethod
     def process_targets(arguments):
         targets = set()
 
@@ -40,8 +30,13 @@ class InputHelper(object):
                 targets.add(target.strip())
 
         # take list of targets and expand CIDR / comma notation
-        targets = set(arguments.expand_targets(targets, arguments.nocidr))
+        if not arguments.nocidr:
+            # expand CIDR from net addr
+            pass
 
+        # expand comma notation
+
+        # return list of unique hosts
         return targets
 
     @staticmethod
