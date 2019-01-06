@@ -112,6 +112,15 @@ interlace -t 192.168.12.0/24 -c "vhostscan _target_ -oN _output_/_target_-vhosts
 ```
 This is despite VHostScan not having any inbuilt CIDR notation support. Since Interlace expands the notation before building a queue of threads, VHostScan for all intents is only receiving a list of direct IP addresses to scan.
 
+## Glob notation with an application that doesn't support it
+Interlace automatically expands glob ranges when starting threads. This allows you to pass glob ranges to a variety of applications:
+
+To run a virtual host scan against every target within 192.168.12.* using a direct command you could use:
+```bash
+interlace -t 192.168.12.* -c "vhostscan _target_ -oN _output_/_target_-vhosts.txt" -o ~/scans/ -threads 50
+```
+Yet again, VHostScan does not having any inbuilt glob range format support.
+
 ## Threading Support for an application that doesn't support it
 Run a [virtual host scan](https://github.com/codingo/VHostScan) against each host in a file (target-lst.txt), whilst also limiting scans at any one time to 50 maximum threads.
 
