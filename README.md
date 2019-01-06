@@ -1,5 +1,5 @@
 # Interlace
-A threading management application that allows controlled execution of multiple commands, over multiple targets.
+Easily turn single threaded command line applications into fast, multi threaded application with CIDR and glob support.
 
 [![Python 3.2|3.6](https://img.shields.io/badge/python-3.2|3.6-green.svg)](https://www.python.org/) [![License](https://img.shields.io/badge/license-GPL3-_red.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html) [![Twitter](https://img.shields.io/badge/twitter-@codingo__-blue.svg)](https://twitter.com/codingo_) [![Twitter](https://img.shields.io/badge/twitter-@sml555__-blue.svg)](https://twitter.com/sml555_)
 
