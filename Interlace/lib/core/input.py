@@ -70,6 +70,7 @@ class InputHelper(object):
             tmp_ports = arguments.port.split("-")
             ports = list(range(int(tmp_ports[0]), int(tmp_ports[1]) + 1))
 
+
         # process targets first
         if arguments.target:
             ranges.add(arguments.target)
@@ -112,7 +113,7 @@ class InputHelper(object):
                     if arguments.output:
                         command = str(command).replace("_output_", arguments.output)
                     if arguments.port:
-                        command = str(command).replace("_port_", port)
+                        command = str(command).replace("_port_", str(port))
                     if arguments.realport:
                         command = str(command).replace("_realport_", arguments.realport)
                     final_commands.add(command)
