@@ -36,6 +36,24 @@ The following varaibles will be replaced in commands at runtime:
 | \_realport\_ | Replaced with the real port variable from interlace                  |
 
 # Usage Examples
+## Run Nikto Over Multiple Sites
+Let's assume that you had a file `targets.txt`  that had the following contents:
+
+```
+bugcrowd.com
+hackerone.com
+```
+You could use interlace to run over any number of targets within this file using:
+```
+➜  /tmp interlace -tL ./targets.txt -threads 5 -c "nikto --host _target_ > ./_target_-nikto.txt" -v
+==============================================
+Interlace v1.0	by Michael Skelton (@codingo_)
+==============================================
+[14:33:23] [VERBOSE] [nikto --host hackerone.com > ./hackerone.com-nikto.txt] Added to Queue 
+[14:33:23] [VERBOSE] [nikto --host bugcrowd.com > ./bugcrowd.com-nikto.txt] Added to Queue 
+```
+This would run nikto over each host and save to a file for each target. Note that in the above example since we're using the `>` operator so results won't be fed back to the terminal, however this is desired functionality as otherwise we wouldn't be able to attribute which target Nikto results were returning for.
+
 ## CIDR notation with an application that doesn't support it
 Interlace automatically expands CIDR notation when starting threads (unless the --no-cidr flag is passed). This allows you to pass CIDR notation to a variety of applications:
 
