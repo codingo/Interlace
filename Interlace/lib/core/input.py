@@ -42,7 +42,7 @@ class InputHelper(object):
     @staticmethod
     def process_commands(arguments):
         commands = set()
-        targets = arguments.process_targets(arguments)
+        targets = InputHelper.process_targets(arguments)
 
         for target in targets:
             # replace flags
