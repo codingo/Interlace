@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 import sys
-from .lib.core.input import InputParser, InputHelper
-from .lib.core.output import OutputHelper, Level
-from .lib.threader import Pool
+from Interlace.lib.core.input import InputParser, InputHelper
+from Interlace.lib.core.output import OutputHelper, Level
+from Interlace.lib.threader import Pool
 
 
 def build_queue(arguments, output):
