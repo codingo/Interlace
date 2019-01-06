@@ -69,8 +69,8 @@ bash
 ==============================================
 Interlace v1.0	by Michael Skelton (@codingo_)
 ==============================================
-[14:33:23] [INTERLACE] [nikto --host hackerone.com > ./hackerone.com-nikto.txt] Added to Queue 
-[14:33:23] [INTERLACE] [nikto --host bugcrowd.com > ./bugcrowd.com-nikto.txt] Added to Queue 
+[14:33:23] [THREAD] [nikto --host hackerone.com > ./hackerone.com-nikto.txt] Added to Queue 
+[14:33:23] [THREAD] [nikto --host bugcrowd.com > ./bugcrowd.com-nikto.txt] Added to Queue 
 ```
 This would run nikto over each host and save to a file for each target. Note that in the above example since we're using the `>` operator so results won't be fed back to the terminal, however this is desired functionality as otherwise we wouldn't be able to attribute which target Nikto results were returning for.
 
@@ -84,10 +84,10 @@ Using the above example, let's assume you want independant scans to be run for b
 ==============================================
 Interlace v1.0	by Michael Skelton (@codingo_)
 ==============================================
-[14:33:23] [INTERLACE] [nikto --host hackerone.com:80 > ./hackerone.com-nikto.txt] Added to Queue 
-[14:33:23] [INTERLACE] [nikto --host bugcrowd.com:80 > ./hackerone.com-nikto.txt] Added to Queue 
-[14:33:23] [INTERLACE] [nikto --host bugcrowd.com:443 > ./bugcrowd.com-nikto.txt] Added to Queue 
-[14:33:23] [INTERLACE] [nikto --host hackerone.com:443 > ./hackerone.com-nikto.txt] Added to Queue 
+[14:33:23] [THREAD] [nikto --host hackerone.com:80 > ./hackerone.com-nikto.txt] Added to Queue 
+[14:33:23] [THREAD] [nikto --host bugcrowd.com:80 > ./hackerone.com-nikto.txt] Added to Queue 
+[14:33:23] [THREAD] [nikto --host bugcrowd.com:443 > ./bugcrowd.com-nikto.txt] Added to Queue 
+[14:33:23] [THREAD] [nikto --host hackerone.com:443 > ./hackerone.com-nikto.txt] Added to Queue 
 ```
 ## Run a List of Commands against Target Hosts
 Often with penetration tests there's a list of commands you want to run on nearly every job. Assuming that list includes testssl.sh, nikto, and sslscan, you could save a command list with the following in a file called `commands.txt`:
