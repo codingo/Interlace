@@ -89,7 +89,7 @@ Interlace v1.0	by Michael Skelton (@codingo_)
 [14:33:23] [INTERLACE] [nikto --host bugcrowd.com:443 > ./bugcrowd.com-nikto.txt] Added to Queue 
 [14:33:23] [INTERLACE] [nikto --host hackerone.com:443 > ./hackerone.com-nikto.txt] Added to Queue 
 ```
-## Run a list of commands against target hosts
+## Run a List of Commands against Target Hosts
 Often with tests there's a list of commands you want to run on nearly every job. Assuming that list includes testssl.sh, nikto, and sslscan, you could save a command list with the following in a file called `commands.txt`:
 
 ```
