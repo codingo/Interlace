@@ -34,11 +34,11 @@ Dependencies will then be installed and Interlace will be added to your path as 
 
 ## Further information regarding ports (-p)
 
-| Example | Notation Type |
-|-------------------------|
-| 1-80 | Dash notation, perform a command for each port from 1-80 |
-| 80 | Single port |
-| 80,443 | Perform a command for both port 80, and port 443 |
+| Example | Notation Type                                            |
+|---------|----------------------------------------------------------|
+| 80      | Single port                                              |
+| 1-80    | Dash notation, perform a command for each port from 1-80 |
+| 80,443  | Perform a command for both port 80, and port 443         |
 
 ## Further information regarding targets (-t or -tL)
 Both `-t` and `-tL` will be processed the same. You can pass targets the same as you would when using nmap. This can be using CIDR notation, dash notatin, or a comma dilimited list of targets. A single target list file can also use different notation types per line.
