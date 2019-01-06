@@ -84,7 +84,7 @@ Using the above example, let's assume you want independant scans to be run for b
 Interlace v1.0	by Michael Skelton (@codingo_)
 ==============================================
 [14:33:23] [INTERLACE] [nikto --host hackerone.com:80 > ./hackerone.com-nikto.txt] Added to Queue 
-[14:33:23] [INTERLACE] [nikto --host hackerone.com:80 > ./hackerone.com-nikto.txt] Added to Queue 
+[14:33:23] [INTERLACE] [nikto --host bugcrowd.com:80 > ./hackerone.com-nikto.txt] Added to Queue 
 [14:33:23] [INTERLACE] [nikto --host bugcrowd.com:443 > ./bugcrowd.com-nikto.txt] Added to Queue 
 [14:33:23] [INTERLACE] [nikto --host hackerone.com:443 > ./hackerone.com-nikto.txt] Added to Queue 
 ```
