@@ -30,7 +30,6 @@ class InputHelper(object):
         else:
             for target in arguments.target_list:
                 targets.add(target.strip())
-                print('[DEBUG] Added Target %s' % target.strip())
 
         # todo: take list of targets and expand CIDR / comma notation
         if not arguments.nocidr:
@@ -39,21 +38,15 @@ class InputHelper(object):
 
         # todo: expand comma notation
 
-        print("[DEBUG] Commands argument: %s" % arguments.command)
         if arguments.command:
             commands.add(arguments.command)
-            print("[DEBUG] Added command %s" % arguments.command)
         else:
             for command in arguments.command_list:
                 commands.add(command.strip())
-                print("[DEBUG] Added command %s" % command)
 
         # expand commands to all known targets
-        print("[DEBUG] Targets length: %s" % len(targets))
         for target in targets:
             # replace flags
-            print("[DEBUG] ............................................")
-            print("[DEBUG] Commend length: %s" % len(commands))
             for command in commands:
                 command = str(command).replace("_target_", target)
                 if arguments.output:
@@ -63,7 +56,6 @@ class InputHelper(object):
                 if arguments.realport:
                     command = str(command).replace("_realport_", arguments.realport)
                 final_commands.add(command)
-                print("[DEBUG] Added final command %s" % str(command))
         return final_commands
 
 
