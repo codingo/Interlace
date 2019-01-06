@@ -115,5 +115,18 @@ This presumes that the contents of the command file is:
 ```
 vhostscan -t $target -oN _output_/_target_-vhosts.txt
 ```
-
 This would output a file for each target in the specified output folder. You could also run multiple commands simply by adding them into the command file.
+
+# Run a list of commands against target hosts
+Often with tests there's a lists of commands you want to run every  time. Assuming that list includes testssl.sh, nikto, and sslscan, you could save a command list with the following in a file `commands.txt`:
+
+```
+nikto --host _target_:_port_ > _output_/_target_-nikto.txt
+sslscan _target_:_port_ >  _output_/_target_-sslscan.txt
+testssl.sh _target_:_port_ > _output_/_target_-testssl.txt
+```
+If you were then given a target, `example.com` you could run each of these commands against this target using the following:
+```bash
+interlace -t example.com -o ~/Engagements/example/ -cL ./commands.txt -p 80,443
+```
+This would then run nikto, sslscan, and testssl.sh for both port 80 and 443 against example.com and save files into your engagements folder.
