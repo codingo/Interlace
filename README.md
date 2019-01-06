@@ -89,6 +89,19 @@ Interlace v1.0	by Michael Skelton (@codingo_)
 [14:33:23] [INTERLACE] [nikto --host bugcrowd.com:443 > ./bugcrowd.com-nikto.txt] Added to Queue 
 [14:33:23] [INTERLACE] [nikto --host hackerone.com:443 > ./hackerone.com-nikto.txt] Added to Queue 
 ```
+## Run a list of commands against target hosts
+Often with tests there's a list of commands you want to run on nearly every job. Assuming that list includes testssl.sh, nikto, and sslscan, you could save a command list with the following in a file called `commands.txt`:
+
+```
+nikto --host _target_:_port_ > _output_/_target_-nikto.txt
+sslscan _target_:_port_ >  _output_/_target_-sslscan.txt
+testssl.sh _target_:_port_ > _output_/_target_-testssl.txt
+```
+If you were then given a target, `example.com` you could run each of these commands against this target using the following:
+```bash
+interlace -t example.com -o ~/Engagements/example/ -cL ./commands.txt -p 80,443
+```
+This would then run nikto, sslscan, and testssl.sh for both port 80 and 443 against example.com and save files into your engagements folder.
 
 ## CIDR notation with an application that doesn't support it
 Interlace automatically expands CIDR notation when starting threads (unless the --no-cidr flag is passed). This allows you to pass CIDR notation to a variety of applications:
@@ -116,17 +129,3 @@ This presumes that the contents of the command file is:
 vhostscan -t $target -oN _output_/_target_-vhosts.txt
 ```
 This would output a file for each target in the specified output folder. You could also run multiple commands simply by adding them into the command file.
-
-## Run a list of commands against target hosts
-Often with tests there's a list of commands you want to run on nearly every job. Assuming that list includes testssl.sh, nikto, and sslscan, you could save a command list with the following in a file called `commands.txt`:
-
-```
-nikto --host _target_:_port_ > _output_/_target_-nikto.txt
-sslscan _target_:_port_ >  _output_/_target_-sslscan.txt
-testssl.sh _target_:_port_ > _output_/_target_-testssl.txt
-```
-If you were then given a target, `example.com` you could run each of these commands against this target using the following:
-```bash
-interlace -t example.com -o ~/Engagements/example/ -cL ./commands.txt -p 80,443
-```
-This would then run nikto, sslscan, and testssl.sh for both port 80 and 443 against example.com and save files into your engagements folder.
