@@ -64,7 +64,7 @@ hackerone.com
 You could use interlace to run over any number of targets within this file using:
 bash
 ```
-➜  /tmp interlace -tL ./targets.txt -threads 5 -c "nikto --host _target_ > ./_target_-nikto.txt" -v
+➜  /tmp interlace -tL ./targets.txt -threads 5 -c "nikto --host _target_:_port_ > ./_target_-nikto.txt" -v
 ==============================================
 Interlace v1.0	by Michael Skelton (@codingo_)
 ==============================================
