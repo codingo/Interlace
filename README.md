@@ -30,7 +30,7 @@ The following varaibles will be replaced in commands at runtime:
 
 | Variable  | Replacement                                                         |
 |-----------|---------------------------------------------------------------------|
-| $target   | Replaced with the target that the current thread is running against |
+| \_target\_   | Replaced with the target that the current thread is running against |
 | $output   | Replaced with the output folder variable from interlace             |
 | $port     | Replaced with the port variable from interlace                      |
 | $realport | Replaced with the real port variable from interlace                 |
