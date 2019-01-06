@@ -28,7 +28,7 @@ class InputHelper(object):
         else:
             for target in arguments.target_list:
                 targets.add(target.strip())
-                print('[DEBUG] Added Target')
+                print('[DEBUG] Added Target %s' % target.strip())
 
         # take list of targets and expand CIDR / comma notation
         if not arguments.nocidr:
@@ -43,27 +43,30 @@ class InputHelper(object):
     @staticmethod
     def process_commands(arguments):
         commands = set()
+        final_commands = set()
+
         print("[DEBUG] Commands argument: %s" % arguments.command)
         if arguments.command:
             commands.add(arguments.command)
-            print("[DEBUG] Added command")
+            print("[DEBUG] Added command %s" % arguments.command)
         else:
             for command in arguments.command_list:
                 commands.add(command.strip())
-                print("[DEBUG] Added command")
+                print("[DEBUG] Added command %s" % command)
 
         targets = InputHelper.process_targets(arguments)
 
         for target in targets:
             # replace flags
+            print("[DEBUG] ............................................")
             for command in commands:
                 command = command.replace("_target_", target)
                 command = command.replace("_output_", arguments.output)
                 command = command.replace("_port_", arguments.port)
                 command = command.replace("_realport_", arguments.realport)
-                commands.add(command)
-                print("[DEBUG] Added command")
-        return commands
+                final_commands.add(command)
+                print("[DEBUG] Added final command %s" % command)
+        return final_commands
 
 
 class InputParser(object):
