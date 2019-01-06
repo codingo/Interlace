@@ -108,7 +108,7 @@ Interlace automatically expands CIDR notation when starting threads (unless the 
 
 To run a virtual host scan against every target within 192.168.12.0/24 using a direct command you could use:
 ```bash
-interlace -t 192.168.12.0/24 -c "vhostscan $target -oN $output/$target-vhosts.txt" -o ~/scans/ -threads 50
+interlace -t 192.168.12.0/24 -c "vhostscan _target_ -oN _output_/_target_-vhosts.txt" -o ~/scans/ -threads 50
 ```
 This is despite VHostScan not having any inbuilt CIDR notation support. Since Interlace expands the notation before building a queue of threads, VHostScan for all intents is only receiving a list of direct IP addresses to scan.
 
