@@ -56,6 +56,7 @@ class InputHelper(object):
 
         return commands
 
+
 class InputParser(object):
     def __init__(self):
         self._parser = self.setup_parser()
@@ -96,7 +97,6 @@ class InputParser(object):
             type=lambda x: InputHelper.check_positive(parser, x)
         )
 
-
         commands = parser.add_mutually_exclusive_group(required=True)
         commands.add_argument(
             '-c', dest='command',
@@ -109,7 +109,6 @@ class InputParser(object):
             metavar="FILE",
             type=lambda x: InputHelper.readable_file(parser, x)
         )
-
 
         parser.add_argument(
             '--no-cidr', dest='nocidr', action='store_true', default=False,
