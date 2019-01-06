@@ -69,6 +69,9 @@ class InputHelper(object):
         elif "-" in arguments.port:
             tmp_ports = arguments.port.split("-")
             ports = list(range(int(tmp_ports[0]), int(tmp_ports[1]) + 1))
+        else:
+            ports = [arguments.port]
+            print(ports)
 
 
         # process targets first
