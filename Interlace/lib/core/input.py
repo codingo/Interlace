@@ -28,6 +28,7 @@ class InputHelper(object):
         else:
             for target in arguments.target_list:
                 targets.add(target.strip())
+                print('[DEBUG] Added Target')
 
         # take list of targets and expand CIDR / comma notation
         if not arguments.nocidr:
@@ -42,16 +43,26 @@ class InputHelper(object):
     @staticmethod
     def process_commands(arguments):
         commands = set()
+        print("[DEBUG] Commands argument: %s" % arguments.command)
+        if arguments.command:
+            commands.add(arguments.command)
+            print("[DEBUG] Added command")
+        else:
+            for command in arguments.command_list:
+                commands.add(command.strip())
+                print("[DEBUG] Added command")
+
         targets = InputHelper.process_targets(arguments)
 
         for target in targets:
             # replace flags
             for command in commands:
-                command = command.replace("$target", target)
-                command = command.replace("$output", arguments.output)
-                command = command.replace("$port", arguments.port)
-                command = command.replace("$realport", arguments.realport)
+                command = command.replace("_target_", target)
+                command = command.replace("_output_", arguments.output)
+                command = command.replace("_port_", arguments.port)
+                command = command.replace("_realport_", arguments.realport)
                 commands.add(command)
+                print("[DEBUG] Added command")
         return commands
 
 
@@ -110,17 +121,17 @@ class InputParser(object):
 
         parser.add_argument(
             '-o', dest='output',
-            help='Specify an output folder variable that can be used in commands as $output'
+            help='Specify an output folder variable that can be used in commands as _output_'
         )
 
         parser.add_argument(
             '-p', dest='port',
-            help='Specify a port variable that can be used in commands as $port'
+            help='Specify a port variable that can be used in commands as _port_'
         )
 
         parser.add_argument(
             '-rp', dest='realport',
-            help='Specify a real port variable that can be used in commands as $realport'
+            help='Specify a real port variable that can be used in commands as _realport_'
         )
 
         parser.add_argument(
