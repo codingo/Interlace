@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+from netaddr import IPNetwork, IPRange, IPGlob
 import os.path
 
 
@@ -19,24 +20,72 @@ class InputHelper(object):
         return arg
 
     @staticmethod
+    def _get_ips_from_range(ip_range):
+        ips = set()
+        ip_range = ip_range.split("-")
+
+        # parsing the above structure into an array and then making into an IP address with the end value
+        end_ip = ".".join(ip_range[0].split(".")[0:-1]) + "." + ip_range[1]
+
+        # creating an IPRange object to get all IPs in between
+        range_obj = IPRange(ip_range[0], end_ip)
+
+        for ip in range_obj:
+            ips.add(str(ip))
+
+        return ips
+
+    @staticmethod
+    def _get_ips_from_glob(glob_ips):
+        ip_glob = IPGlob(glob_ips)
+
+        ips = set()
+
+        for ip in ip_glob:
+            ips.add(str(ip))
+
+        return ips
+
+    @staticmethod
+    def _get_cidr_to_ips(cidr_range):
+        ips = set()
+
+        for ip in IPNetwork(cidr_range):
+            ips.add(str(ip))
+
+        return ips
+
+    @staticmethod
     def process_commands(arguments):
         commands = set()
+        ranges = set()
         targets = set()
         final_commands = set()
 
         # process targets first
         if arguments.target:
-            targets.add(arguments.target)
+            ranges.add(arguments.target)
         else:
             for target in arguments.target_list:
-                targets.add(target.strip())
+                ranges.add(target.strip())
 
-        # todo: take list of targets and expand CIDR / comma notation
-        if not arguments.nocidr:
-            # todo: expand CIDR from net addr
-            pass
+        # removing elements that may have spaces (helpful for easily processing comma notation)
+        for target in ranges:
+            target = target.replace(" ", "")
 
-        # todo: expand comma notation
+            # todo: take list of targets and expand CIDR / comma notation
+            for ips in target.split(","):
+                # checking for CIDR
+                if not arguments.nocidr and "/" in ips:
+                    targets.update(InputHelper._get_cidr_to_ips(ips))
+                # checking for IPs in a range 
+                elif "-" in ips:
+                    targets.update(InputHelper._get_ips_from_range(ips))
+                # checking for glob ranges
+                elif "*" in ips:
+                    targets.update(InputHelper._get_ips_from_glob(ips))
+                else:
+                    targets.add(ips)
 
         if arguments.command:
             commands.add(arguments.command)
