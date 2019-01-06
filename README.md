@@ -138,3 +138,6 @@ This presumes that the contents of the command file is:
 vhostscan -t $target -oN _output_/_target_-vhosts.txt
 ```
 This would output a file for each target in the specified output folder. You could also run multiple commands simply by adding them into the command file.
+
+# Auhors and Thanks
+Originally written by Michael Skelton ([codingo](https://twitter.com/codingo_)) and Sajeeb Lohani ([sml555](https://twitter.com/sml555_)) with help from Charelle Collett ([@Charcol0x89](https://twitter.com/Charcol0x89)) for threading refactoring and overall appraoch, and Luke Stephens ([hakluke](https://twitter.com/hakluke)) for testing and approach.
