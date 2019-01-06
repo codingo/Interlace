@@ -58,6 +58,7 @@ class Pool(object):
         for thread in threads:
             thread.join()
 
+# test harness
 if __name__ == "__main__":
     tasks = ["sleep 1",
              "sleep 2",
