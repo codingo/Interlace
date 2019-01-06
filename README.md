@@ -117,8 +117,8 @@ vhostscan -t $target -oN _output_/_target_-vhosts.txt
 ```
 This would output a file for each target in the specified output folder. You could also run multiple commands simply by adding them into the command file.
 
-# Run a list of commands against target hosts
-Often with tests there's a lists of commands you want to run every  time. Assuming that list includes testssl.sh, nikto, and sslscan, you could save a command list with the following in a file `commands.txt`:
+## Run a list of commands against target hosts
+Often with tests there's a list of commands you want to run on nearly every job. Assuming that list includes testssl.sh, nikto, and sslscan, you could save a command list with the following in a file called `commands.txt`:
 
 ```
 nikto --host _target_:_port_ > _output_/_target_-nikto.txt
