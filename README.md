@@ -7,7 +7,7 @@ A threading management application that allows controlled execution of multiple 
 
 | Argument   | Description                                                                                                  |
 |------------|--------------------------------------------------------------------------------------------------------------|
-| -t         | Specify a target or domain name                                                                              |
+| -t         | Specify a target or domain name either in comma format, CIDR notation, or as an individual host.             |
 | -tL        | Specify a list of targets or domain names                                                                    |
 | -threads   | Specify the maximum number of threads to run at any one time (DEFAULT:5)                                     |
 | -timeout   | Specify a timeout value in seconds for any one thread (DEFAULT:600)                                          |

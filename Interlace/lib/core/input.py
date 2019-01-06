@@ -19,8 +19,10 @@ class InputHelper(object):
         return arg
 
     @staticmethod
-    def expand_targets(targets):
-        # expand CIDR from net addr
+    def expand_targets(targets, dont_expand_cidr):
+        if not dont_expand_cidr:
+            # expand CIDR from net addr
+            pass
         # expand comma notation
 
         # return list of unique hosts
@@ -38,7 +40,7 @@ class InputHelper(object):
                 targets.add(target.strip())
 
         # take list of targets and expand CIDR / comma notation
-        targets = set(arguments.expand_targets(targets))
+        targets = set(arguments.expand_targets(targets, arguments.nocidr))
 
         return targets
 
@@ -69,7 +71,8 @@ class InputParser(object):
 
         targets.add_argument(
             '-t', dest='target', required=False,
-            help='Specify a target or domain name.'
+            help='Specify a target or domain name either in comma format, '
+                 'CIDR notation, or a single target.'
         )
 
         targets.add_argument(
@@ -107,6 +110,12 @@ class InputParser(object):
             type=lambda x: InputHelper.readable_file(parser, x)
         )
 
+
+        parser.add_argument(
+            '--no-cidr', dest='nocidr', action='store_true', default=False,
+            help='If set then CIDR notation in a target file will not be automatically '
+                 'be expanded into individual hosts.'
+        )
 
         parser.add_argument(
             '--no-color', dest='nocolor', action='store_true', default=False,
