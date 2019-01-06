@@ -65,7 +65,7 @@ hackerone.com
 You could use interlace to run over any number of targets within this file using:
 bash
 ```
-➜  /tmp interlace -tL ./targets.txt -threads 5 -c "nikto --host _target_:_port_ > ./_target_-nikto.txt" -v
+➜  /tmp interlace -tL ./targets.txt -threads 5 -c "nikto --host _target_ > ./_target_-nikto.txt" -v
 ==============================================
 Interlace v1.0	by Michael Skelton (@codingo_)
 ==============================================
@@ -80,7 +80,7 @@ For applications where you desire feedback simply pass commands as you normally 
 Using the above example, let's assume you want independant scans to be run for both ports `80` and `443` for the same targets. You would then use the following:
 
 ```
-➜  /tmp interlace -tL ./targets.txt -threads 5 -c "nikto --host _target_ > ./_target_-nikto.txt" -p 80,443 -v
+➜  /tmp interlace -tL ./targets.txt -threads 5 -c "nikto --host _target_:_port_ > ./_target_-_port_-nikto.txt" -p 80,443 -v
 ==============================================
 Interlace v1.0	by Michael Skelton (@codingo_)
 ==============================================
