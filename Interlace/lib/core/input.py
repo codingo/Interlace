@@ -113,20 +113,17 @@ class InputParser(object):
             type=lambda x: InputHelper.readable_file(parser, x)
         )
 
-        commands = parser.add_mutually_exclusive_group(required=True)
-        commands.add_argument(
+        parser.add_argument(
             '-o', dest='output',
             help='Specify an output folder variable that can be used in commands as $output'
         )
 
-        commands = parser.add_mutually_exclusive_group(required=True)
-        commands.add_argument(
+        parser.add_argument(
             '-p', dest='port',
             help='Specify a port variable that can be used in commands as $port'
         )
 
-        commands = parser.add_mutually_exclusive_group(required=True)
-        commands.add_argument(
+        parser.add_argument(
             '-rp', dest='realport',
             help='Specify a real port variable that can be used in commands as $realport'
         )
