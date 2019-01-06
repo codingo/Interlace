@@ -64,6 +64,8 @@ class InputHelper(object):
         final_commands = set()
         output = OutputHelper(arguments)
 
+        ports = arguments.port.split(",")
+
         # process targets first
         if arguments.target:
             ranges.add(arguments.target)
@@ -98,16 +100,19 @@ class InputHelper(object):
         for target in targets:
             # replace flags
             for command in commands:
-                command = str(command).replace("_target_", target)
-                command = str(command).replace("_host_", target)
-                if arguments.output:
-                    command = str(command).replace("_output_", arguments.output)
-                if arguments.port:
-                    command = str(command).replace("_port_", arguments.port)
-                if arguments.realport:
-                    command = str(command).replace("_realport_", arguments.realport)
-                final_commands.add(command)
-                output.terminal(Level.VERBOSE, command, "Added after processing")
+                tmp_command = command
+                for port in ports:
+                    command = tmp_command
+                    command = str(command).replace("_target_", target)
+                    command = str(command).replace("_host_", target)
+                    if arguments.output:
+                        command = str(command).replace("_output_", arguments.output)
+                    if arguments.port:
+                        command = str(command).replace("_port_", port)
+                    if arguments.realport:
+                        command = str(command).replace("_realport_", arguments.realport)
+                    final_commands.add(command)
+                    output.terminal(Level.VERBOSE, command, "Added after processing")
 
         return final_commands
 
