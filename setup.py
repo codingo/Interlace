@@ -28,7 +28,7 @@ with open("README.md") as file:
         author_email="codingo@protonmail.com",
         url="https://github.com/codingo/Interlace",
         packages=find_packages(exclude=('tests')),
-        package_data={'VHostScan': ['*.txt']},
+        package_data={'Interlace': ['*.txt']},
         entry_points={
             'console_scripts': [
                 'Interlace = Interlace.Interlace:main'
