@@ -41,7 +41,7 @@ Dependencies will then be installed and Interlace will be added to your path as 
 | 80,443  | Perform a command for both port 80, and port 443         |
 
 ## Further information regarding targets (-t or -tL)
-Both `-t` and `-tL` will be processed the same. You can pass targets the same as you would when using nmap. This can be done using CIDR notation, dash notatin, or a comma dilimited list of targets. A single target list file can also use different notation types per line.
+Both `-t` and `-tL` will be processed the same. You can pass targets the same as you would when using nmap. This can be done using CIDR notation, dash notation, or a comma delimited list of targets. A single target list file can also use different notation types per line.
 
 # Variable Replacements
 The following varaibles will be replaced in commands at runtime:
