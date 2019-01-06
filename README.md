@@ -9,7 +9,9 @@ Contributions to this project are very welcome. If you're a newcomer to open sou
 # Setup 
 Install using:
 
-```$ python3 setup.py install```
+```bash
+$ python3 setup.py install
+```
 Dependencies will then be installed and Interlace will be added to your path as `interlace`.
 
 # Usage
@@ -50,6 +52,7 @@ bugcrowd.com
 hackerone.com
 ```
 You could use interlace to run over any number of targets within this file using:
+bash
 ```
 ➜  /tmp interlace -tL ./targets.txt -threads 5 -c "nikto --host _target_ > ./_target_-nikto.txt" -v
 ==============================================
