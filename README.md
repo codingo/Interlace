@@ -90,7 +90,7 @@ Interlace v1.0	by Michael Skelton (@codingo_)
 [14:33:23] [INTERLACE] [nikto --host hackerone.com:443 > ./hackerone.com-nikto.txt] Added to Queue 
 ```
 ## Run a List of Commands against Target Hosts
-Often with tests there's a list of commands you want to run on nearly every job. Assuming that list includes testssl.sh, nikto, and sslscan, you could save a command list with the following in a file called `commands.txt`:
+Often with penetration tests there's a list of commands you want to run on nearly every job. Assuming that list includes testssl.sh, nikto, and sslscan, you could save a command list with the following in a file called `commands.txt`:
 
 ```
 nikto --host _target_:_port_ > _output_/_target_-nikto.txt
