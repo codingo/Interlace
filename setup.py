@@ -31,7 +31,7 @@ with open("README.md") as file:
         package_data={'Interlace': ['*.txt']},
         entry_points={
             'console_scripts': [
-                'Interlace = Interlace.Interlace:main'
+                'interlace = Interlace.interlace:main'
             ]
         },
         install_requires=dependencies('requirements.txt'),
