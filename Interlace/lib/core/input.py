@@ -47,13 +47,16 @@ class InputHelper(object):
     @staticmethod
     def process_commands(arguments):
         commands = set()
+        targets = arguments.process_targets(arguments)
 
-        if arguments.command:
-            commands.add(arguments.command)
-        else:
-            for command in arguments.command_list:
-                commands.add(command.strip())
-
+        for target in targets:
+            # replace flags
+            for command in commands:
+                command = command.replace("$target", target)
+                command = command.replace("$output", arguments.output)
+                command = command.replace("$port", arguments.port)
+                command = command.replace("$realport", arguments.realport)
+                commands.add(command)
         return commands
 
 
@@ -108,6 +111,24 @@ class InputParser(object):
             help='Specify a list of commands to execute',
             metavar="FILE",
             type=lambda x: InputHelper.readable_file(parser, x)
+        )
+
+        commands = parser.add_mutually_exclusive_group(required=True)
+        commands.add_argument(
+            '-o', dest='output',
+            help='Specify an output folder variable that can be used in commands as $output'
+        )
+
+        commands = parser.add_mutually_exclusive_group(required=True)
+        commands.add_argument(
+            '-p', dest='port',
+            help='Specify a port variable that can be used in commands as $port'
+        )
+
+        commands = parser.add_mutually_exclusive_group(required=True)
+        commands.add_argument(
+            '-rp', dest='realport',
+            help='Specify a real port variable that can be used in commands as $realport'
         )
 
         parser.add_argument(
