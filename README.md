@@ -32,8 +32,8 @@ The following varaibles will be replaced in commands at runtime:
 |-----------|-------------------------------------------------------------------------|
 | \_target\_   | Replaced with the target that the current thread is running against  |
 | \_output\_   | Replaced with the output folder variable from interlace              |
-| \_$port\_     | Replaced with the port variable from interlace                      |
-| \_$realport\_ | Replaced with the real port variable from interlace                 |
+| \_port\_     | Replaced with the port variable from interlace                       |
+| \_realport\_ | Replaced with the real port variable from interlace                  |
 
 # Usage Examples
 ## CIDR notation with an application that doesn't support it
