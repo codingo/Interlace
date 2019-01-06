@@ -25,7 +25,7 @@ Dependencies will then be installed and Interlace will be added to your path as 
 | -c         | Specify a single command to execute over each target or domain                                               |
 | -cL        | Specify a list of commands to execute over each target or domain                                             |
 | -o         | Specify an output folder variable that can be used in commands as \_output\_                                 |
-| -p         | Specify a list of port variablse that can be used in commands as \_port\_. This can be a single port, a comma delimited list, or use dash notation |
+| -p         | Specify a list of port variable that can be used in commands as \_port\_. This can be a single port, a comma delimited list, or use dash notation |
 | -rp        | Specify a real port variable that can be used in commands as \_realport\_                                    |
 | --no-cidr  | If set then CIDR notation in a target file will not be automatically be expanded into individual hosts.      |
 | --no-color | If set then any foreground or background colours will be stripped out                                        |
@@ -48,7 +48,7 @@ The following varaibles will be replaced in commands at runtime:
 
 | Variable  | Replacement                                                             |
 |-----------|-------------------------------------------------------------------------|
-| \_target\_   | Replaced with the expanded target list that the current thread is running against  |
+| \_target\_ or \_host\_  | Replaced with the expanded target list that the current thread is running against  |
 | \_output\_   | Replaced with the output folder variable from interlace              |
 | \_port\_     | Replaced with the expanded port variable from interlace                       |
 | \_realport\_ | Replaced with the real port variable from interlace                  |
