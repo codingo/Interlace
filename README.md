@@ -16,9 +16,9 @@ Contributions to this project are very welcome. If you're a newcomer to open sou
 | -timeout   | Specify a timeout value in seconds for any one thread (DEFAULT:600)                                          |
 | -c         | Specify a single command to execute over each target or domain                                               |
 | -cL        | Specify a list of commands to execute over each target or domain                                             |
-| -o         | Specify an output folder variable that can be used in commands as $output                                    |
-| -p         | Specify a port variable that can be used in commands as $port                                                |
-| -rp        | Specify a real port variable that can be used in commands as $realport                                       |
+| -o         | Specify an output folder variable that can be used in commands as \_output\_                                 |
+| -p         | Specify a port variable that can be used in commands as \_port\_                                             |
+| -rp        | Specify a real port variable that can be used in commands as \_realport\_                                    |
 | --no-cidr  | If set then CIDR notation in a target file will not be automatically be expanded into individual hosts.      |
 | --no-color | If set then any foreground or background colours will be stripped out                                        |
 | --silent   | If set then only important information will be displayed and banners and other information will be redacted. |
@@ -28,12 +28,12 @@ Contributions to this project are very welcome. If you're a newcomer to open sou
 # Variable Replacements
 The following varaibles will be replaced in commands at runtime:
 
-| Variable  | Replacement                                                         |
-|-----------|---------------------------------------------------------------------|
-| $target   | Replaced with the target that the current thread is running against |
-| $output   | Replaced with the output folder variable from interlace             |
-| $port     | Replaced with the port variable from interlace                      |
-| $realport | Replaced with the real port variable from interlace                 |
+| Variable  | Replacement                                                             |
+|-----------|-------------------------------------------------------------------------|
+| \_target\_   | Replaced with the target that the current thread is running against  |
+| \_output\_   | Replaced with the output folder variable from interlace              |
+| \_port\_     | Replaced with the port variable from interlace                       |
+| \_realport\_ | Replaced with the real port variable from interlace                  |
 
 # Usage Examples
 ## CIDR notation with an application that doesn't support it
