@@ -16,9 +16,9 @@ Contributions to this project are very welcome. If you're a newcomer to open sou
 | -timeout   | Specify a timeout value in seconds for any one thread (DEFAULT:600)                                          |
 | -c         | Specify a single command to execute over each target or domain                                               |
 | -cL        | Specify a list of commands to execute over each target or domain                                             |
-| -o         | Specify an output folder variable that can be used in commands                                               |
-| -p         | Specify a port variable that can be used in commands                                                         |
-| -rp        | Specify a real port variable that can be used in commands                                                    |
+| -o         | Specify an output folder variable that can be used in commands as $output                                    |
+| -p         | Specify a port variable that can be used in commands as $port                                                |
+| -rp        | Specify a real port variable that can be used in commands as $realport                                       |
 | --no-cidr  | If set then CIDR notation in a target file will not be automatically be expanded into individual hosts.      |
 | --no-color | If set then any foreground or background colours will be stripped out                                        |
 | --silent   | If set then only important information will be displayed and banners and other information will be redacted. |
