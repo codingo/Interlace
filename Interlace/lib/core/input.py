@@ -64,7 +64,14 @@ class InputHelper(object):
         final_commands = set()
         output = OutputHelper(arguments)
 
-        ports = arguments.port.split(",")
+        if "," in arguments.port:
+            ports = arguments.port.split(",")
+        elif "-" in arguments.port:
+            tmp_ports = arguments.port.split("-")
+            ports = list(range(int(tmp_ports[0]), int(tmp_ports[1]) + 1))
+        else:
+            ports = [arguments.port]
+
 
         # process targets first
         if arguments.target:
@@ -108,7 +115,7 @@ class InputHelper(object):
                     if arguments.output:
                         command = str(command).replace("_output_", arguments.output)
                     if arguments.port:
-                        command = str(command).replace("_port_", port)
+                        command = str(command).replace("_port_", str(port))
                     if arguments.realport:
                         command = str(command).replace("_realport_", arguments.realport)
                     final_commands.add(command)
