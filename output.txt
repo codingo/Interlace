@@ -1,0 +1,20 @@
+PING 10.0.0.1 (10.0.0.1) 56(84) bytes of data.
+
+PING 10.0.0.4 (10.0.0.4) 56(84) bytes of data.
+
+PING 10.0.0.3 (10.0.0.3) 56(84) bytes of data.
+
+PING 10.0.0.2 (10.0.0.2) 56(84) bytes of data.
+
+--- 10.0.0.1 ping statistics ---
+70 packets transmitted, 0 received, 100% packet loss, time 728ms
+
+--- 10.0.0.4 ping statistics ---
+70 packets transmitted, 0 received, 100% packet loss, time 728ms
+
+--- 10.0.0.3 ping statistics ---
+70 packets transmitted, 0 received, 100% packet loss, time 728ms
+
+--- 10.0.0.2 ping statistics ---
+70 packets transmitted, 0 received, 100% packet loss, time 728ms
+

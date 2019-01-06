@@ -53,13 +53,17 @@ class InputHelper(object):
         for target in targets:
             # replace flags
             print("[DEBUG] ............................................")
+            print("[DEBUG] Commend length: %s" % len(commands))
             for command in commands:
-                command = command.replace("_target_", target)
-                command = command.replace("_output_", arguments.output)
-                command = command.replace("_port_", arguments.port)
-                command = command.replace("_realport_", arguments.realport)
+                command = str(command).replace("_target_", target)
+                if arguments.output:
+                    command = str(command).replace("_output_", arguments.output)
+                if arguments.port:
+                    command = str(command).replace("_port_", arguments.port)
+                if arguments.realport:
+                    command = str(command).replace("_realport_", arguments.realport)
                 final_commands.add(command)
-                print("[DEBUG] Added final command %s" % command)
+                print("[DEBUG] Added final command %s" % str(command))
         return final_commands
 
 
