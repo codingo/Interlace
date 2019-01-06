@@ -19,10 +19,12 @@ class InputHelper(object):
         return arg
 
     @staticmethod
-    def process_targets(arguments):
+    def process_commands(arguments):
+        commands = set()
         targets = set()
+        final_commands = set()
 
-        # build list of targets from file/input
+        # process targets first
         if arguments.target:
             targets.add(arguments.target)
         else:
@@ -30,20 +32,12 @@ class InputHelper(object):
                 targets.add(target.strip())
                 print('[DEBUG] Added Target %s' % target.strip())
 
-        # take list of targets and expand CIDR / comma notation
+        # todo: take list of targets and expand CIDR / comma notation
         if not arguments.nocidr:
-            # expand CIDR from net addr
+            # todo: expand CIDR from net addr
             pass
 
-        # expand comma notation
-
-        # return list of unique hosts
-        return targets
-
-    @staticmethod
-    def process_commands(arguments):
-        commands = set()
-        final_commands = set()
+        # todo: expand comma notation
 
         print("[DEBUG] Commands argument: %s" % arguments.command)
         if arguments.command:
@@ -54,8 +48,8 @@ class InputHelper(object):
                 commands.add(command.strip())
                 print("[DEBUG] Added command %s" % command)
 
-        targets = InputHelper.process_targets(arguments)
-
+        # expand commands to all known targets
+        print("[DEBUG] Targets length: %s" % len(targets))
         for target in targets:
             # replace flags
             print("[DEBUG] ............................................")
