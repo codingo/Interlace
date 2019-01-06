@@ -6,6 +6,12 @@ A threading management application that allows controlled execution of multiple 
 # Contributions
 Contributions to this project are very welcome. If you're a newcomer to open source and would like some help in doing so, feel free to reach out to me on twitter ([@codingo_](https://twitter.com/codingo_)) and I'll assist wherever I can.
 
+# Setup 
+Install using:
+
+```$ python3 setup.py install```
+Dependencies will then be installed and Interlace will be added to your path as `interlace`.
+
 # Usage
 
 | Argument   | Description                                                                                                  |
