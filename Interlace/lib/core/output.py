@@ -1,8 +1,9 @@
 from colorclass import Color
 from colorclass import disable_all_colors, enable_all_colors, is_enabled
 from time import localtime, strftime
-from lib.core.__version__ import __version__
 from enum import IntEnum
+from .lib.core.__version__ import __version__
+
 
 class OutputHelper(object):
     def __init__(self, arguments):
