@@ -48,7 +48,8 @@ The following varaibles will be replaced in commands at runtime:
 
 | Variable  | Replacement                                                             |
 |-----------|-------------------------------------------------------------------------|
-| \_target\_ or \_host\_  | Replaced with the expanded target list that the current thread is running against  |
+| \_target\_  | Replaced with the expanded target list that the current thread is running against  |
+| \_host\_ | Works the same as \_target\_, can be used interchangably. |
 | \_output\_   | Replaced with the output folder variable from interlace              |
 | \_port\_     | Replaced with the expanded port variable from interlace                       |
 | \_realport\_ | Replaced with the real port variable from interlace                  |
