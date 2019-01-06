@@ -1,7 +1,7 @@
 # Interlace
 A threading management application that allows controlled execution of multiple commands, over multiple targets.
 
-[![Python 3.2|3.6](https://img.shields.io/badge/python-3.2|3.6-green.svg)](https://www.python.org/) [![License](https://img.shields.io/badge/license-GPL3-_red.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html) [![Build Status](https://travis-ci.org/codingo/Reconnoitre.svg?branch=master)](https://travis-ci.org/codingo/Reconnoitre) [![Twitter](https://img.shields.io/badge/twitter-@codingo__-blue.svg)](https://twitter.com/codingo_) [![Twitter](https://img.shields.io/badge/twitter-@sml555__-blue.svg)](https://twitter.com/sml555_)
+[![Python 3.2|3.6](https://img.shields.io/badge/python-3.2|3.6-green.svg)](https://www.python.org/) [![License](https://img.shields.io/badge/license-GPL3-_red.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html) [![Twitter](https://img.shields.io/badge/twitter-@codingo__-blue.svg)](https://twitter.com/codingo_) [![Twitter](https://img.shields.io/badge/twitter-@sml555__-blue.svg)](https://twitter.com/sml555_)
 
 # Contributions
 Contributions to this project are very welcome. If you're a newcomer to open source and would like some help in doing so, feel free to reach out to me on twitter ([@codingo_](https://twitter.com/codingo_)) and I'll assist wherever I can.
@@ -25,7 +25,7 @@ Dependencies will then be installed and Interlace will be added to your path as 
 | -c         | Specify a single command to execute over each target or domain                                               |
 | -cL        | Specify a list of commands to execute over each target or domain                                             |
 | -o         | Specify an output folder variable that can be used in commands as \_output\_                                 |
-| -p         | Specify a list of port variablse that can be used in commands as \_port\_. This can be a single port, a comma delimeted list, or use dash notation |
+| -p         | Specify a list of port variablse that can be used in commands as \_port\_. This can be a single port, a comma delimited list, or use dash notation |
 | -rp        | Specify a real port variable that can be used in commands as \_realport\_                                    |
 | --no-cidr  | If set then CIDR notation in a target file will not be automatically be expanded into individual hosts.      |
 | --no-color | If set then any foreground or background colours will be stripped out                                        |
