@@ -8,7 +8,7 @@ from Interlace.lib.threader import Pool
 def build_queue(arguments, output):
     queue = list()
     for command in InputHelper.process_commands(arguments):
-        output.terminal(Level.VERBOSE, command, "Added to Queue")
+        output.terminal(Level.THREAD, command, "Added to Queue")
         queue.append(command)
     return queue
 

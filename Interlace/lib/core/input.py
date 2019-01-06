@@ -1,5 +1,6 @@
 from argparse import ArgumentParser
 from netaddr import IPNetwork, IPRange, IPGlob
+from Interlace.lib.core.output import OutputHelper, Level
 import os.path
 
 
@@ -61,6 +62,7 @@ class InputHelper(object):
         ranges = set()
         targets = set()
         final_commands = set()
+        output = OutputHelper(arguments)
 
         # process targets first
         if arguments.target:
@@ -73,7 +75,6 @@ class InputHelper(object):
         for target in ranges:
             target = target.replace(" ", "")
 
-            # todo: take list of targets and expand CIDR / comma notation
             for ips in target.split(","):
                 # checking for CIDR
                 if not arguments.nocidr and "/" in ips:
@@ -98,6 +99,7 @@ class InputHelper(object):
             # replace flags
             for command in commands:
                 command = str(command).replace("_target_", target)
+                command = str(command).replace("_host_", target)
                 if arguments.output:
                     command = str(command).replace("_output_", arguments.output)
                 if arguments.port:
@@ -105,6 +107,8 @@ class InputHelper(object):
                 if arguments.realport:
                     command = str(command).replace("_realport_", arguments.realport)
                 final_commands.add(command)
+                output.terminal(Level.VERBOSE, command, "Added after processing")
+
         return final_commands
 
 
