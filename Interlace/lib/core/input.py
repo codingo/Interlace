@@ -66,8 +66,6 @@ class InputHelper(object):
         final_commands = set()
         output = OutputHelper(arguments)
 
-        print(arguments.exclusions)
-
         if "," in arguments.port:
             ports = arguments.port.split(",")
         elif "-" in arguments.port:
