@@ -61,8 +61,12 @@ class InputHelper(object):
         commands = set()
         ranges = set()
         targets = set()
+        exclusions_ranges = set()
+        exclusions = set()
         final_commands = set()
         output = OutputHelper(arguments)
+
+        print(arguments.exclusions)
 
         if "," in arguments.port:
             ports = arguments.port.split(",")
@@ -80,6 +84,13 @@ class InputHelper(object):
             for target in arguments.target_list:
                 ranges.add(target.strip())
 
+        # process exclusions first
+        if arguments.exclusions:
+            exclusions_ranges.add(arguments.exclusions)
+        else:
+            for exclusion in arguments.exclusions_list:
+                exclusions_ranges.add(target.strip())
+
         # removing elements that may have spaces (helpful for easily processing comma notation)
         for target in ranges:
             target = target.replace(" ", "")
@@ -96,6 +107,25 @@ class InputHelper(object):
                     targets.update(InputHelper._get_ips_from_glob(ips))
                 else:
                     targets.add(ips)
+
+        # removing elements that may have spaces (helpful for easily processing comma notation)
+        for exclusion in exclusions_ranges:
+            exclusion = exclusion.replace(" ", "")
+
+            for ips in exclusion.split(","):
+                # checking for CIDR
+                if not arguments.nocidr and "/" in ips:
+                    exclusions.update(InputHelper._get_cidr_to_ips(ips))
+                # checking for IPs in a range 
+                elif "-" in ips:
+                    exclusions.update(InputHelper._get_ips_from_range(ips))
+                # checking for glob ranges
+                elif "*" in ips:
+                    exclusions.update(InputHelper._get_ips_from_glob(ips))
+                else:
+                    exclusions.add(ips)
+
+        targets -= exclusions
 
         if arguments.command:
             commands.add(arguments.command)
@@ -140,12 +170,28 @@ class InputParser(object):
         targets.add_argument(
             '-t', dest='target', required=False,
             help='Specify a target or domain name either in comma format, '
-                 'CIDR notation, or a single target.'
+                 'CIDR notation, glob notation, or a single target.'
         )
 
         targets.add_argument(
             '-tL', dest='target_list', required=False,
             help='Specify a list of targets or domain names.',
+            metavar="FILE",
+            type=lambda x: InputHelper.readable_file(parser, x)
+        )
+
+        # exclusions group
+        exclusions = parser.add_mutually_exclusive_group()
+
+        exclusions.add_argument(
+            '-e', dest='exclusions', required=False,
+            help='Specify an exclusion either in comma format, '
+                 'CIDR notation, or a single target.'
+        )
+
+        exclusions.add_argument(
+            '-eL', dest='exclusions_list', required=False,
+            help='Specify a list of exclusions.',
             metavar="FILE",
             type=lambda x: InputHelper.readable_file(parser, x)
         )
