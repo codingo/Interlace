@@ -15,18 +15,18 @@ Dependencies will then be installed and Interlace will be added to your path as 
 
 | Argument   | Description                                                                                                  |
 |------------|--------------------------------------------------------------------------------------------------------------|
-| -t         | Specify a target or domain name either in comma-delimited format, CIDR notation, or as an individual host             |
+| -t         | Specify a target or domain name either in comma-delimited format, CIDR notation, or as an individual host    |
 | -tL        | Specify a list of targets or domain names                                                                    |
-| -e         | Specify an exclusion either in comma-delimited format, CIDR notation, or as an individual host             |
-| -eL        | Specify a list of exclusions                                                                    |
+| -e         | Specify a target exclusion either in comma-delimited format, CIDR notation, or as an individual host         |
+| -eL        | Specify a list of targets to exclude                                                                         |
 | -threads   | Specify the maximum number of threads to run at any one time (DEFAULT:5)                                     |
-| -timeout   | Specify a timeout value in seconds for any single thread (DEFAULT:600)                                          |
+| -timeout   | Specify a timeout value in seconds for any single thread (DEFAULT:600)                                       |
 | -c         | Specify a single command to execute over each target or domain                                               |
 | -cL        | Specify a list of commands to execute over each target or domain                                             |
 | -o         | Specify an output folder variable that can be used in commands as \_output\_                                 |
 | -p         | Specify a list of port variable that can be used in commands as \_port\_. This can be a single port, a comma delimited list, or use dash notation |
 | -rp        | Specify a real port variable that can be used in commands as \_realport\_                                    |
-| --no-cidr  | If set then CIDR notation in a target file will not be automatically be expanded into individual hosts      |
+| --no-cidr  | If set then CIDR notation in a target file will not be automatically be expanded into individual hosts       |
 | --no-color | If set then any foreground or background colours will be stripped out                                        |
 | --silent   | If set then only important information will be displayed and banners and other information will be redacted |
 | -v         | If set then verbose output will be displayed in the terminal                                                 |
