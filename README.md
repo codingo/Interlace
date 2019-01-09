@@ -17,6 +17,8 @@ Dependencies will then be installed and Interlace will be added to your path as 
 |------------|--------------------------------------------------------------------------------------------------------------|
 | -t         | Specify a target or domain name either in comma-delimited format, CIDR notation, or as an individual host             |
 | -tL        | Specify a list of targets or domain names                                                                    |
+| -e         | Specify an exclusion either in comma-delimited format, CIDR notation, or as an individual host             |
+| -eL        | Specify a list of exclusions                                                                    |
 | -threads   | Specify the maximum number of threads to run at any one time (DEFAULT:5)                                     |
 | -timeout   | Specify a timeout value in seconds for any single thread (DEFAULT:600)                                          |
 | -c         | Specify a single command to execute over each target or domain                                               |
@@ -118,6 +120,16 @@ interlace -t 192.168.12.* -c "vhostscan _target_ -oN _output_/_target_-vhosts.tx
 ```
 Yet again, VHostScan does not have any inbuilt glob range format support.
 
+## Dash (-) notation with an application that doesn't support it
+Interlace automatically expands dash ranges when starting threads. This allows you to pass glob ranges to a variety of applications:
+
+To run a virtual host scan against every target within `192.168.12.1-15` using a direct command you could use:
+```bash
+interlace -t 192.168.12.1-15 -c "vhostscan _target_ -oN _output_/_target_-vhosts.txt" -o ~/scans/ -threads 50
+```
+Yet again, VHostScan does not have any inbuilt dash range format support.
+
+
 ## Threading Support for an application that doesn't support it
 Run a [virtual host scan](https://github.com/codingo/VHostScan) against each host in a file (`target-lst.txt`), whilst also limiting scans at any one time to 50 maximum threads.
 
@@ -135,6 +147,16 @@ This presumes that the content of the command file is:
 vhostscan -t $target -oN _output_/_target_-vhosts.txt
 ```
 This would output a file for each target in the specified output folder. You could also run multiple commands simply by adding them into the command file.
+
+## Exclusions
+Interlace automatically excludes any hosts provided when specified via the `-e` or `-eL` arguments. These arguments are also compatible with the above-mentinoed range notations (CIDR, Glob, and dash)
+
+To run a virtual host scan against every target within `192.168.12.0/24` despire targets within `192.168.12.0/26` using a direct command you could use:
+```bash
+interlace -t 192.168.12.0/24 -e 192.168.12.0/26 -c "vhostscan _target_ -oN _output_/_target_-vhosts.txt" -o ~/scans/ -threads 50
+```
+
+
 
 # Authors and Thanks
 Originally written by Michael Skelton ([codingo](https://twitter.com/codingo_)) and Sajeeb Lohani ([sml555](https://twitter.com/sml555_)) with help from Charelle Collett ([@Charcol0x89](https://twitter.com/Charcol0x89)) for threading refactoring and overall approach, and Luke Stephens ([hakluke](https://twitter.com/hakluke)) for testing and approach.
