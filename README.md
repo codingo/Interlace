@@ -120,6 +120,16 @@ interlace -t 192.168.12.* -c "vhostscan _target_ -oN _output_/_target_-vhosts.tx
 ```
 Yet again, VHostScan does not have any inbuilt glob range format support.
 
+## Dash (-) notation with an application that doesn't support it
+Interlace automatically expands dash ranges when starting threads. This allows you to pass glob ranges to a variety of applications:
+
+To run a virtual host scan against every target within `192.168.12.1-15` using a direct command you could use:
+```bash
+interlace -t 192.168.12.1-15 -c "vhostscan _target_ -oN _output_/_target_-vhosts.txt" -o ~/scans/ -threads 50
+```
+Yet again, VHostScan does not have any inbuilt dash range format support.
+
+
 ## Threading Support for an application that doesn't support it
 Run a [virtual host scan](https://github.com/codingo/VHostScan) against each host in a file (`target-lst.txt`), whilst also limiting scans at any one time to 50 maximum threads.
 
