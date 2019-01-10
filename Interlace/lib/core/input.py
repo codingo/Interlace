@@ -2,6 +2,7 @@ from argparse import ArgumentParser
 from netaddr import IPNetwork, IPRange, IPGlob
 from Interlace.lib.core.output import OutputHelper, Level
 import os.path
+from re import compile
 
 
 class InputHelper(object):
@@ -66,13 +67,14 @@ class InputHelper(object):
         final_commands = set()
         output = OutputHelper(arguments)
 
-        if "," in arguments.port:
-            ports = arguments.port.split(",")
-        elif "-" in arguments.port:
-            tmp_ports = arguments.port.split("-")
-            ports = list(range(int(tmp_ports[0]), int(tmp_ports[1]) + 1))
-        else:
-            ports = [arguments.port]
+        if arguments.port:
+            if "," in arguments.port:
+                ports = arguments.port.split(",")
+            elif "-" in arguments.port:
+                tmp_ports = arguments.port.split("-")
+                ports = list(range(int(tmp_ports[0]), int(tmp_ports[1]) + 1))
+            else:
+                ports = [arguments.port]
 
 
         # process targets first
@@ -86,14 +88,19 @@ class InputHelper(object):
         if arguments.exclusions:
             exclusions_ranges.add(arguments.exclusions)
         else:
-            for exclusion in arguments.exclusions_list:
-                exclusions_ranges.add(target.strip())
+            if arguments.exclusions_list:
+                for exclusion in arguments.exclusions_list:
+                    exclusions_ranges.add(target.strip())
 
         # removing elements that may have spaces (helpful for easily processing comma notation)
         for target in ranges:
             target = target.replace(" ", "")
 
             for ips in target.split(","):
+                # check if it is a domain name
+                if ips.split(".")[-1][0].isalpha():
+                    targets.add(ips)
+                    continue
                 # checking for CIDR
                 if not arguments.nocidr and "/" in ips:
                     targets.update(InputHelper._get_cidr_to_ips(ips))
@@ -111,6 +118,10 @@ class InputHelper(object):
             exclusion = exclusion.replace(" ", "")
 
             for ips in exclusion.split(","):
+                # check if it is a domain name
+                if ips.split(".")[-1][0].isalpha():
+                    targets.add(ips)
+                    continue
                 # checking for CIDR
                 if not arguments.nocidr and "/" in ips:
                     exclusions.update(InputHelper._get_cidr_to_ips(ips))
@@ -136,16 +147,24 @@ class InputHelper(object):
             # replace flags
             for command in commands:
                 tmp_command = command
-                for port in ports:
+                if arguments.port:
+                    for port in ports:
+                        command = tmp_command
+                        command = str(command).replace("_target_", target)
+                        command = str(command).replace("_host_", target)
+                        if arguments.output:
+                            command = str(command).replace("_output_", arguments.output)
+                        command = str(command).replace("_port_", str(port))
+                        if arguments.realport:
+                            command = str(command).replace("_realport_", arguments.realport)
+                        final_commands.add(command)
+                        output.terminal(Level.VERBOSE, command, "Added after processing")
+                else:
                     command = tmp_command
                     command = str(command).replace("_target_", target)
                     command = str(command).replace("_host_", target)
                     if arguments.output:
                         command = str(command).replace("_output_", arguments.output)
-                    if arguments.port:
-                        command = str(command).replace("_port_", str(port))
-                    if arguments.realport:
-                        command = str(command).replace("_realport_", arguments.realport)
                     final_commands.add(command)
                     output.terminal(Level.VERBOSE, command, "Added after processing")
 
