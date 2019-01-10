@@ -66,13 +66,14 @@ class InputHelper(object):
         final_commands = set()
         output = OutputHelper(arguments)
 
-        if "," in arguments.port:
-            ports = arguments.port.split(",")
-        elif "-" in arguments.port:
-            tmp_ports = arguments.port.split("-")
-            ports = list(range(int(tmp_ports[0]), int(tmp_ports[1]) + 1))
-        else:
-            ports = [arguments.port]
+        if arguments.port:
+            if "," in arguments.port:
+                ports = arguments.port.split(",")
+            elif "-" in arguments.port:
+                tmp_ports = arguments.port.split("-")
+                ports = list(range(int(tmp_ports[0]), int(tmp_ports[1]) + 1))
+            else:
+                ports = [arguments.port]
 
 
         # process targets first
@@ -86,8 +87,9 @@ class InputHelper(object):
         if arguments.exclusions:
             exclusions_ranges.add(arguments.exclusions)
         else:
-            for exclusion in arguments.exclusions_list:
-                exclusions_ranges.add(target.strip())
+            if arguments.exclusions_list:
+                for exclusion in arguments.exclusions_list:
+                    exclusions_ranges.add(target.strip())
 
         # removing elements that may have spaces (helpful for easily processing comma notation)
         for target in ranges:
