@@ -36,6 +36,6 @@ with open("README.md") as file:
         },
         install_requires=dependencies('requirements.txt'),
         setup_requires=['pytest-runner',
-                        '' if num_installed else 'numpy==1.12.0'],
+                        '' if num_installed else 'numpy==1.16.0'],
         tests_require=dependencies('test-requirements.txt'),
         include_package_data=True)
