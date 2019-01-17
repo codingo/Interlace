@@ -2,6 +2,7 @@ from argparse import ArgumentParser
 from netaddr import IPNetwork, IPRange, IPGlob
 from Interlace.lib.core.output import OutputHelper, Level
 import os.path
+import sys
 from re import compile
 
 
@@ -81,8 +82,12 @@ class InputHelper(object):
         if arguments.target:
             ranges.add(arguments.target)
         else:
-            for target in arguments.target_list:
-                ranges.add(target.strip())
+            targetFile = arguments.target_list
+            if not sys.stdin.isatty():
+                targetFile = sys.stdin
+            for target in targetFile:
+                if target.strip():
+                    ranges.add(target.strip())
 
         # process exclusions first
         if arguments.exclusions:
@@ -182,7 +187,12 @@ class InputParser(object):
     def setup_parser():
         parser = ArgumentParser()
 
-        targets = parser.add_mutually_exclusive_group(required=True)
+        #Is stdin attached?
+        requireTargetArg = True
+        if not sys.stdin.isatty():
+            requireTargetArg = False
+
+        targets = parser.add_mutually_exclusive_group(required=requireTargetArg)
 
         targets.add_argument(
             '-t', dest='target', required=False,
