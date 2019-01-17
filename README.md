@@ -15,6 +15,7 @@ Dependencies will then be installed and Interlace will be added to your path as 
 
 | Argument   | Description                                                                                                  |
 |------------|--------------------------------------------------------------------------------------------------------------|
+| (stdin)    | Pipe target lists from another application in comma-delimited format, CIDR notation, or as an individual host|
 | -t         | Specify a target or domain name either in comma-delimited format, CIDR notation, or as an individual host    |
 | -tL        | Specify a list of targets or domain names                                                                    |
 | -e         | Specify a target exclusion either in comma-delimited format, CIDR notation, or as an individual host         |
@@ -41,6 +42,8 @@ Dependencies will then be installed and Interlace will be added to your path as 
 
 ## Further information regarding targets (-t or -tL)
 Both `-t` and `-tL` will be processed the same. You can pass targets the same as you would when using nmap. This can be done using CIDR notation, dash notation, or a comma-delimited list of targets. A single target list file can also use different notation types per line.
+
+Alternatively, you can pass targets in via stdin and neither -t or -tL will be required.
 
 # Variable Replacements
 The following variables will be replaced in commands at runtime:
