@@ -78,6 +78,8 @@ class InputHelper(object):
                 ports = arguments.port.split(",")
             elif "-" in arguments.port:
                 tmp_ports = arguments.port.split("-")
+                if int(tmp_ports[0]) >= int(tmp_ports[1]):
+                    raise Exception("Invalid range provided")
                 ports = list(range(int(tmp_ports[0]), int(tmp_ports[1]) + 1))
             else:
                 ports = [arguments.port]
@@ -144,6 +146,7 @@ class InputHelper(object):
                 else:
                     exclusions.add(ips)
 
+        # difference operation
         targets -= exclusions
 
         if arguments.command:
