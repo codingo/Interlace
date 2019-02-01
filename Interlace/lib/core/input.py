@@ -62,10 +62,13 @@ class InputHelper(object):
     @staticmethod
     def _replace_variable_for_commands(commands, variable, replacements):
         tmp_commands = set()
+        print(commands)
+        print(variable)
+        print(replacements)
 
         for replacement in replacements:
             for command in commands:
-                tmp_commands.add(str(command).replace(variable, command))
+                tmp_commands.add(str(command).replace(variable, str(replacement)))
 
         return tmp_commands
 
@@ -95,6 +98,17 @@ class InputHelper(object):
                 ports = list(range(int(tmp_ports[0]), int(tmp_ports[1]) + 1))
             else:
                 ports = [arguments.port]
+
+        if arguments.realport:
+            if "," in arguments.realport:
+                real_ports = arguments.realport.split(",")
+            elif "-" in arguments.realport:
+                tmp_ports = arguments.realport.split("-")
+                if int(tmp_ports[0]) >= int(tmp_ports[1]):
+                    raise Exception("Invalid range provided")
+                real_ports = list(range(int(tmp_ports[0]), int(tmp_ports[1]) + 1))
+            else:
+                real_ports = [arguments.realport]
 
 
         # process targets first
@@ -168,33 +182,19 @@ class InputHelper(object):
                 commands.add(command.strip())
 
         if arguments.port:
-            print(InputHelper._replace_variable_for_commands(commands, "__port__", ports))
+            final_commands = InputHelper._replace_variable_for_commands(commands, "_port_", ports)
 
-        # expand commands to all known targets
-        for target in targets:
-            # replace flags
-            for command in commands:
-                tmp_command = command
-                if arguments.port:
-                    for port in ports:
-                        command = tmp_command
-                        command = str(command).replace("_target_", target)
-                        command = str(command).replace("_host_", target)
-                        if arguments.output:
-                            command = str(command).replace("_output_", arguments.output)
-                        command = str(command).replace("_port_", str(port))
-                        if arguments.realport:
-                            command = str(command).replace("_realport_", arguments.realport)
-                        final_commands.add(command)
-                        output.terminal(Level.VERBOSE, command, "Added after processing")
-                else:
-                    command = tmp_command
-                    command = str(command).replace("_target_", target)
-                    command = str(command).replace("_host_", target)
-                    if arguments.output:
-                        command = str(command).replace("_output_", arguments.output)
-                    final_commands.add(command)
-                    output.terminal(Level.VERBOSE, command, "Added after processing")
+        if arguments.targets:
+            final_commands = InputHelper._replace_variable_for_commands(x, "_target_", targets)
+            final_commands = InputHelper._replace_variable_for_commands(x, "_host_", targets)
+
+        if arguments.realport:
+            final_commands = InputHelper._replace_variable_for_commands(commands, "_port_", real_ports)
+
+        if arguments.output:
+            final_commands = InputHelper._replace_variable_for_commands(commands, "_output_", [arguments.output])
+
+        # output.terminal(Level.VERBOSE, command, "Added after processing")
 
         return final_commands
 
