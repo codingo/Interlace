@@ -60,6 +60,17 @@ class InputHelper(object):
         return ips
 
     @staticmethod
+    def _replace_variable_for_commands(commands, variable, replacements):
+        tmp_commands = set()
+
+        for replacement in replacements:
+            for command in commands:
+                tmp_commands.add(str(command).replace(variable, command))
+
+        return tmp_commands
+
+
+    @staticmethod
     def process_commands(arguments):
         commands = set()
         ranges = set()
@@ -70,8 +81,9 @@ class InputHelper(object):
         output = OutputHelper(arguments)
 
         # checking for whether output is writable and whether it exists
-        if not access(arguments.output, W_OK):
-            raise Exception("Directory provided isn't writable")
+        if arguments.output:
+            if not access(arguments.output, W_OK):
+                raise Exception("Directory provided isn't writable")
 
         if arguments.port:
             if "," in arguments.port:
@@ -154,6 +166,9 @@ class InputHelper(object):
         else:
             for command in arguments.command_list:
                 commands.add(command.strip())
+
+        if arguments.port:
+            print(InputHelper._replace_variable_for_commands(commands, "__port__", ports))
 
         # expand commands to all known targets
         for target in targets:
