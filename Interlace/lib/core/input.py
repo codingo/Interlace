@@ -190,6 +190,13 @@ class InputHelper(object):
         if arguments.output:
             final_commands = InputHelper._replace_variable_for_commands(final_commands, "_output_", [arguments.output])
 
+        if arguments.proto:
+            if "," in arguments.proto:
+                protocols = arguments.proto.split(",")
+            else:
+                protocols = arguments.proto
+            final_commands = InputHelper._replace_variable_for_commands(final_commands, "_proto_", protocols)
+
         return final_commands
 
 
@@ -275,6 +282,11 @@ class InputParser(object):
         parser.add_argument(
             '-p', dest='port',
             help='Specify a port variable that can be used in commands as _port_'
+        )
+
+        parser.add_argument(
+            '--proto', dest='proto',
+            help='Specify protocols that can be used in commands as _proto_'
         )
 
         parser.add_argument(
