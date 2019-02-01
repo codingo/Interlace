@@ -184,15 +184,14 @@ class InputHelper(object):
         if arguments.port:
             final_commands = InputHelper._replace_variable_for_commands(commands, "_port_", ports)
 
-        if arguments.targets:
-            final_commands = InputHelper._replace_variable_for_commands(x, "_target_", targets)
-            final_commands = InputHelper._replace_variable_for_commands(x, "_host_", targets)
+        final_commands = InputHelper._replace_variable_for_commands(final_commands, "_target_", targets)
+        final_commands = InputHelper._replace_variable_for_commands(final_commands, "_host_", targets)
 
         if arguments.realport:
-            final_commands = InputHelper._replace_variable_for_commands(commands, "_port_", real_ports)
+            final_commands = InputHelper._replace_variable_for_commands(final_commands, "_port_", real_ports)
 
         if arguments.output:
-            final_commands = InputHelper._replace_variable_for_commands(commands, "_output_", [arguments.output])
+            final_commands = InputHelper._replace_variable_for_commands(final_commands, "_output_", [arguments.output])
 
         # output.terminal(Level.VERBOSE, command, "Added after processing")
 
