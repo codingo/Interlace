@@ -2,6 +2,7 @@ from argparse import ArgumentParser
 from netaddr import IPNetwork, IPRange, IPGlob
 from Interlace.lib.core.output import OutputHelper, Level
 import os.path
+from os import access, W_OK
 import sys
 from re import compile
 
@@ -67,6 +68,10 @@ class InputHelper(object):
         exclusions = set()
         final_commands = set()
         output = OutputHelper(arguments)
+
+        # checking for whether output is writable and whether it exists
+        if not access(arguments.output, W_OK):
+            raise Exception("Directory provided isn't writable")
 
         if arguments.port:
             if "," in arguments.port:
