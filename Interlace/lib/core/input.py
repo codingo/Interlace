@@ -62,9 +62,6 @@ class InputHelper(object):
     @staticmethod
     def _replace_variable_for_commands(commands, variable, replacements):
         tmp_commands = set()
-        print(commands)
-        print(variable)
-        print(replacements)
 
         for replacement in replacements:
             for command in commands:
@@ -192,8 +189,6 @@ class InputHelper(object):
 
         if arguments.output:
             final_commands = InputHelper._replace_variable_for_commands(final_commands, "_output_", [arguments.output])
-
-        # output.terminal(Level.VERBOSE, command, "Added after processing")
 
         return final_commands
 
