@@ -2,6 +2,7 @@ from argparse import ArgumentParser
 from netaddr import IPNetwork, IPRange, IPGlob
 from Interlace.lib.core.output import OutputHelper, Level
 import os.path
+from os import access, W_OK
 import sys
 from re import compile
 
@@ -59,6 +60,17 @@ class InputHelper(object):
         return ips
 
     @staticmethod
+    def _replace_variable_for_commands(commands, variable, replacements):
+        tmp_commands = set()
+
+        for replacement in replacements:
+            for command in commands:
+                tmp_commands.add(str(command).replace(variable, str(replacement)))
+
+        return tmp_commands
+
+
+    @staticmethod
     def process_commands(arguments):
         commands = set()
         ranges = set()
@@ -68,14 +80,32 @@ class InputHelper(object):
         final_commands = set()
         output = OutputHelper(arguments)
 
+        # checking for whether output is writable and whether it exists
+        if arguments.output:
+            if not access(arguments.output, W_OK):
+                raise Exception("Directory provided isn't writable")
+
         if arguments.port:
             if "," in arguments.port:
                 ports = arguments.port.split(",")
             elif "-" in arguments.port:
                 tmp_ports = arguments.port.split("-")
+                if int(tmp_ports[0]) >= int(tmp_ports[1]):
+                    raise Exception("Invalid range provided")
                 ports = list(range(int(tmp_ports[0]), int(tmp_ports[1]) + 1))
             else:
                 ports = [arguments.port]
+
+        if arguments.realport:
+            if "," in arguments.realport:
+                real_ports = arguments.realport.split(",")
+            elif "-" in arguments.realport:
+                tmp_ports = arguments.realport.split("-")
+                if int(tmp_ports[0]) >= int(tmp_ports[1]):
+                    raise Exception("Invalid range provided")
+                real_ports = list(range(int(tmp_ports[0]), int(tmp_ports[1]) + 1))
+            else:
+                real_ports = [arguments.realport]
 
 
         # process targets first
@@ -139,6 +169,7 @@ class InputHelper(object):
                 else:
                     exclusions.add(ips)
 
+        # difference operation
         targets -= exclusions
 
         if arguments.command:
@@ -147,31 +178,24 @@ class InputHelper(object):
             for command in arguments.command_list:
                 commands.add(command.strip())
 
-        # expand commands to all known targets
-        for target in targets:
-            # replace flags
-            for command in commands:
-                tmp_command = command
-                if arguments.port:
-                    for port in ports:
-                        command = tmp_command
-                        command = str(command).replace("_target_", target)
-                        command = str(command).replace("_host_", target)
-                        if arguments.output:
-                            command = str(command).replace("_output_", arguments.output)
-                        command = str(command).replace("_port_", str(port))
-                        if arguments.realport:
-                            command = str(command).replace("_realport_", arguments.realport)
-                        final_commands.add(command)
-                        output.terminal(Level.VERBOSE, command, "Added after processing")
-                else:
-                    command = tmp_command
-                    command = str(command).replace("_target_", target)
-                    command = str(command).replace("_host_", target)
-                    if arguments.output:
-                        command = str(command).replace("_output_", arguments.output)
-                    final_commands.add(command)
-                    output.terminal(Level.VERBOSE, command, "Added after processing")
+        if arguments.port:
+            final_commands = InputHelper._replace_variable_for_commands(commands, "_port_", ports)
+
+        final_commands = InputHelper._replace_variable_for_commands(final_commands, "_target_", targets)
+        final_commands = InputHelper._replace_variable_for_commands(final_commands, "_host_", targets)
+
+        if arguments.realport:
+            final_commands = InputHelper._replace_variable_for_commands(final_commands, "_port_", real_ports)
+
+        if arguments.output:
+            final_commands = InputHelper._replace_variable_for_commands(final_commands, "_output_", [arguments.output])
+
+        if arguments.proto:
+            if "," in arguments.proto:
+                protocols = arguments.proto.split(",")
+            else:
+                protocols = arguments.proto
+            final_commands = InputHelper._replace_variable_for_commands(final_commands, "_proto_", protocols)
 
         return final_commands
 
@@ -258,6 +282,11 @@ class InputParser(object):
         parser.add_argument(
             '-p', dest='port',
             help='Specify a port variable that can be used in commands as _port_'
+        )
+
+        parser.add_argument(
+            '--proto', dest='proto',
+            help='Specify protocols that can be used in commands as _proto_'
         )
 
         parser.add_argument(
