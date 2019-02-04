@@ -178,11 +178,11 @@ class InputHelper(object):
             for command in arguments.command_list:
                 commands.add(command.strip())
 
-        if arguments.port:
-            final_commands = InputHelper._replace_variable_for_commands(commands, "_port_", ports)
-
-        final_commands = InputHelper._replace_variable_for_commands(final_commands, "_target_", targets)
+        final_commands = InputHelper._replace_variable_for_commands(commands, "_target_", targets)
         final_commands = InputHelper._replace_variable_for_commands(final_commands, "_host_", targets)
+
+        if arguments.port:
+            final_commands = InputHelper._replace_variable_for_commands(final_commands, "_port_", ports)
 
         if arguments.realport:
             final_commands = InputHelper._replace_variable_for_commands(final_commands, "_port_", real_ports)
