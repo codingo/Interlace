@@ -185,7 +185,7 @@ class InputHelper(object):
             final_commands = InputHelper._replace_variable_for_commands(final_commands, "_port_", ports)
 
         if arguments.realport:
-            final_commands = InputHelper._replace_variable_for_commands(final_commands, "_port_", real_ports)
+            final_commands = InputHelper._replace_variable_for_commands(final_commands, "_realport_", real_ports)
 
         if arguments.output:
             final_commands = InputHelper._replace_variable_for_commands(final_commands, "_output_", [arguments.output])
