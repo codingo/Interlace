@@ -42,12 +42,13 @@ class OutputHelper(object):
             'leader':leader
         }
 
-        if level == 1:
-            template = '[{time}] {leader} [{target}] {command} {message}'
-        else:
-            template = '[{time}] {leader} [{target}] {command} {message}'
+        if not self.silent:
+            if level == 1:
+                template = '[{time}] {leader} [{target}] {command} {message}'
+            else:
+                template = '[{time}] {leader} [{target}] {command} {message}'
             
-        print(template.format(**format_args))
+            print(template.format(**format_args))
 
 
 class Level(IntEnum):
