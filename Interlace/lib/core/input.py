@@ -5,6 +5,7 @@ import os.path
 from os import access, W_OK
 import sys
 from re import compile
+from random import sample
 
 
 class InputHelper(object):
@@ -63,10 +64,16 @@ class InputHelper(object):
     def _replace_variable_for_commands(commands, variable, replacements):
         tmp_commands = set()
 
+        test = list()
+
+        if not variable in sample(commands, 1)[0]:
+        	return commands
+
         for replacement in replacements:
             for command in commands:
-                tmp_commands.add(str(command).replace(variable, str(replacement)))
+            	test.append(str(command).replace(variable, str(replacement)))
 
+        tmp_commands.update(test)
         return tmp_commands
 
 
@@ -111,6 +118,7 @@ class InputHelper(object):
         # process targets first
         if arguments.target:
             ranges.add(arguments.target)
+            print("List made")
         else:
             targetFile = arguments.target_list
             if not sys.stdin.isatty():
@@ -130,8 +138,10 @@ class InputHelper(object):
         # removing elements that may have spaces (helpful for easily processing comma notation)
         for target in ranges:
             target = target.replace(" ", "")
+            print("Fixing spaces")
 
             for ips in target.split(","):
+
                 # check if it is a domain name
                 if ips.split(".")[-1][0].isalpha():
                     targets.add(ips)
@@ -147,6 +157,7 @@ class InputHelper(object):
                     targets.update(InputHelper._get_ips_from_glob(ips))
                 else:
                     targets.add(ips)
+                    print("added")
 
         # removing elements that may have spaces (helpful for easily processing comma notation)
         for exclusion in exclusions_ranges:
@@ -169,6 +180,7 @@ class InputHelper(object):
                 else:
                     exclusions.add(ips)
 
+        print("removed")
         # difference operation
         targets -= exclusions
 
