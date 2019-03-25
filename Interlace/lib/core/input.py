@@ -5,6 +5,7 @@ import os.path
 from os import access, W_OK
 import sys
 from re import compile
+from random import sample
 
 
 class InputHelper(object):
@@ -63,10 +64,16 @@ class InputHelper(object):
     def _replace_variable_for_commands(commands, variable, replacements):
         tmp_commands = set()
 
+        test = list()
+
+        if not variable in sample(commands, 1)[0]:
+        	return commands
+
         for replacement in replacements:
             for command in commands:
-                tmp_commands.add(str(command).replace(variable, str(replacement)))
+            	test.append(str(command).replace(variable, str(replacement)))
 
+        tmp_commands.update(test)
         return tmp_commands
 
 
@@ -132,6 +139,7 @@ class InputHelper(object):
             target = target.replace(" ", "")
 
             for ips in target.split(","):
+
                 # check if it is a domain name
                 if ips.split(".")[-1][0].isalpha():
                     targets.add(ips)
