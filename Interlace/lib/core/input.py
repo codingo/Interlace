@@ -118,7 +118,6 @@ class InputHelper(object):
         # process targets first
         if arguments.target:
             ranges.add(arguments.target)
-            print("List made")
         else:
             targetFile = arguments.target_list
             if not sys.stdin.isatty():
@@ -138,7 +137,6 @@ class InputHelper(object):
         # removing elements that may have spaces (helpful for easily processing comma notation)
         for target in ranges:
             target = target.replace(" ", "")
-            print("Fixing spaces")
 
             for ips in target.split(","):
 
@@ -157,7 +155,6 @@ class InputHelper(object):
                     targets.update(InputHelper._get_ips_from_glob(ips))
                 else:
                     targets.add(ips)
-                    print("added")
 
         # removing elements that may have spaces (helpful for easily processing comma notation)
         for exclusion in exclusions_ranges:
@@ -180,7 +177,6 @@ class InputHelper(object):
                 else:
                     exclusions.add(ips)
 
-        print("removed")
         # difference operation
         targets -= exclusions
 
