@@ -181,10 +181,10 @@ class InputHelper(object):
         targets -= exclusions
 
         if arguments.command:
-            commands.add(arguments.command)
+            commands.add(arguments.command.rstrip('\n'))
         else:
             for command in arguments.command_list:
-                commands.add(command)
+                commands.add(command.rstrip('\n'))
 
         final_commands = InputHelper._replace_variable_for_commands(commands, "_target_", targets)
         final_commands = InputHelper._replace_variable_for_commands(final_commands, "_host_", targets)
