@@ -184,7 +184,7 @@ class InputHelper(object):
             commands.add(arguments.command)
         else:
             for command in arguments.command_list:
-                commands.add(command.strip())
+                commands.add(command)
 
         final_commands = InputHelper._replace_variable_for_commands(commands, "_target_", targets)
         final_commands = InputHelper._replace_variable_for_commands(final_commands, "_host_", targets)
