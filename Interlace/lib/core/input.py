@@ -180,6 +180,9 @@ class InputHelper(object):
         # difference operation
         targets -= exclusions
 
+        if len(targets) == 0:
+            raise Exception("No target provided, or empty target list")
+
         if arguments.command:
             commands.add(arguments.command.rstrip('\n'))
         else:
