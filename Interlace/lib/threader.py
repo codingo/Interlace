@@ -1,4 +1,5 @@
 import threading
+import subprocess
 import os
 
 
@@ -20,7 +21,7 @@ class Worker(object):
 
     @staticmethod
     def run_task(task):
-        os.system(task)
+        subprocess.call(task, shell=true)
 
 
 class Pool(object):
