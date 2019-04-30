@@ -21,7 +21,7 @@ class Worker(object):
 
     @staticmethod
     def run_task(task):
-        subprocess.call(task, shell=true)
+        subprocess.call(task, shell=True)
 
 
 class Pool(object):
