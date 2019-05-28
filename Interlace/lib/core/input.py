@@ -238,8 +238,6 @@ class InputHelper(object):
 
             final_commands = InputHelper._replace_variable_array(final_commands, "_proxy_", proxy_list)
 
-        print(final_commands)
-
         return final_commands
 
 
