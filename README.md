@@ -29,6 +29,7 @@ Dependencies will then be installed and Interlace will be added to your path as 
 | -cL        | Specify a list of commands to execute over each target or domain                                             |
 | -o         | Specify an output folder variable that can be used in commands as \_output\_                                 |
 | -p         | Specify a list of port variable that can be used in commands as \_port\_. This can be a single port, a comma delimited list, or use dash notation |
+| -pL        | Specify a list of proxies                                                                                    |
 | --proto    | Specify protocols that can be used in commands as \_proto\_                                    |
 | -rp        | Specify a real port variable that can be used in commands as \_realport\_                                    |
 | --no-cidr  | If set then CIDR notation in a target file will not be automatically be expanded into individual hosts       |
@@ -72,9 +73,9 @@ You could use interlace to run over any number of targets within this file using
 bash
 ```
 ➜  /tmp interlace -tL ./targets.txt -threads 5 -c "nikto --host _target_ > ./_target_-nikto.txt" -v
-==============================================
-Interlace v1.0	by Michael Skelton (@codingo_)
-==============================================
+=========================================================================
+Interlace v1.0	by Michael Skelton (@codingo_) & Sajeeb Lohani (@sml555_)
+=========================================================================
 [14:33:23] [THREAD] [nikto --host hackerone.com > ./hackerone.com-nikto.txt] Added to Queue 
 [14:33:23] [THREAD] [nikto --host bugcrowd.com > ./bugcrowd.com-nikto.txt] Added to Queue 
 ```
@@ -87,9 +88,9 @@ Using the above example, let's assume you want independent scans to be run for b
 
 ```
 ➜  /tmp interlace -tL ./targets.txt -threads 5 -c "nikto --host _target_:_port_ > ./_target_-_port_-nikto.txt" -p 80,443 -v
-==============================================
-Interlace v1.0	by Michael Skelton (@codingo_)
-==============================================
+=========================================================================
+Interlace v1.0	by Michael Skelton (@codingo_) & Sajeeb Lohani (@sml555_)
+=========================================================================
 [14:33:23] [THREAD] [nikto --host hackerone.com:80 > ./hackerone.com-nikto.txt] Added to Queue 
 [14:33:23] [THREAD] [nikto --host bugcrowd.com:80 > ./hackerone.com-nikto.txt] Added to Queue 
 [14:33:23] [THREAD] [nikto --host bugcrowd.com:443 > ./bugcrowd.com-nikto.txt] Added to Queue 
@@ -161,6 +162,13 @@ Interlace automatically excludes any hosts provided when specified via the `-e` 
 To run a virtual host scan against every target within `192.168.12.0/24` despire targets within `192.168.12.0/26` using a direct command you could use:
 ```bash
 interlace -t 192.168.12.0/24 -e 192.168.12.0/26 -c "vhostscan _target_ -oN _output_/_target_-vhosts.txt" -o ~/scans/ -threads 50
+```
+
+## Run Nikto Using Multiple Proxies
+Using the above example, let's assume you want independent scans to be via different proxies for the same targets. You would then use the following:
+
+```
+➜  /tmp interlace -tL ./targets.txt -pL ./proxies.txt -threads 5 -c "nikto --host _target_:_port_ -useproxy _proxy_ > ./_target_-_port_-nikto.txt" -p 80,443 -v
 ```
 
 
