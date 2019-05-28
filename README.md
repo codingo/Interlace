@@ -29,6 +29,7 @@ Dependencies will then be installed and Interlace will be added to your path as 
 | -cL        | Specify a list of commands to execute over each target or domain                                             |
 | -o         | Specify an output folder variable that can be used in commands as \_output\_                                 |
 | -p         | Specify a list of port variable that can be used in commands as \_port\_. This can be a single port, a comma delimited list, or use dash notation |
+| -pL        | Specify a list of proxies                                                                                    |
 | --proto    | Specify protocols that can be used in commands as \_proto\_                                    |
 | -rp        | Specify a real port variable that can be used in commands as \_realport\_                                    |
 | --no-cidr  | If set then CIDR notation in a target file will not be automatically be expanded into individual hosts       |
