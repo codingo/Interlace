@@ -12,14 +12,14 @@ class OutputHelper(object):
 
         self.verbose = arguments.verbose
         self.silent = arguments.silent
-        self.seperator = "=============================================="
+        self.seperator = "================================================================================="
 
     def print_banner(self):
         if self.silent:
             return
 
         print(self.seperator)
-        print("Interlace v%s\tby Michael Skelton (@codingo_)" % __version__)
+        print("Interlace v%s\tby Michael Skelton (@codingo_) & Sajeeb Lohani (@sml555_)" % __version__)
         print(self.seperator)
 
     def terminal(self, level, target, command, message=""):
