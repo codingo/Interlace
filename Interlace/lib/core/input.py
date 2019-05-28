@@ -6,6 +6,7 @@ from os import access, W_OK
 import sys
 from re import compile
 from random import sample
+from math import ceil
 
 
 class InputHelper(object):
@@ -67,11 +68,28 @@ class InputHelper(object):
         test = list()
 
         if not variable in sample(commands, 1)[0]:
-        	return commands
+            return commands
 
         for replacement in replacements:
             for command in commands:
-            	test.append(str(command).replace(variable, str(replacement)))
+                test.append(str(command).replace(variable, str(replacement)))
+
+        tmp_commands.update(test)
+        return tmp_commands
+        
+    @staticmethod
+    def _replace_variable_array(commands, variable, replacement):
+        tmp_commands = set()
+        counter = 0
+
+        test = list()
+
+        if not variable in sample(commands, 1)[0]:
+            return commands
+
+        for command in commands:
+            test.append(str(command).replace(variable, str(replacement[counter])))
+            counter += 1
 
         tmp_commands.update(test)
         return tmp_commands
@@ -124,7 +142,7 @@ class InputHelper(object):
                 targetFile = sys.stdin
             for target in targetFile:
                 if target.strip():
-                    ranges.add(target.strip())
+                    ranges.add(target.strip())          
 
         # process exclusions first
         if arguments.exclusions:
@@ -207,6 +225,20 @@ class InputHelper(object):
             else:
                 protocols = arguments.proto
             final_commands = InputHelper._replace_variable_for_commands(final_commands, "_proto_", protocols)
+        
+        # process proxies
+        if arguments.proxy_list:
+            proxy_list = list()
+            for proxy in arguments.proxy_list:
+                if proxy.strip():
+                    proxy_list.append(proxy.strip())
+
+            if len(proxy_list) < len(final_commands):
+                proxy_list = ceil(len(final_commands) / len(proxy_list)) * proxy_list
+
+            final_commands = InputHelper._replace_variable_array(final_commands, "_proxy_", proxy_list)
+
+        print(final_commands)
 
         return final_commands
 
@@ -270,6 +302,13 @@ class InputParser(object):
             help="Command timeout in seconds (DEFAULT:600)",
             default=600,
             type=lambda x: InputHelper.check_positive(parser, x)
+        )
+
+        parser.add_argument(
+            '-pL', dest='proxy_list', required=False,
+            help='Specify a list of proxies.',
+            metavar="FILE",
+            type=lambda x: InputHelper.readable_file(parser, x)
         )
 
         commands = parser.add_mutually_exclusive_group(required=True)
