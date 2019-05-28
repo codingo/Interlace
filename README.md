@@ -60,6 +60,7 @@ The following variables will be replaced in commands at runtime:
 | \_output\_   | Replaced with the output folder variable from interlace              |
 | \_port\_     | Replaced with the expanded port variable from interlace                       |
 | \_realport\_ | Replaced with the real port variable from interlace                  |
+| \_proxy\_    | Replaced with the proxy list from interlace |
 
 # Usage Examples
 ## Run Nikto Over Multiple Sites
