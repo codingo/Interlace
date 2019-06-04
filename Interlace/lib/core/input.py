@@ -355,7 +355,7 @@ class InputParser(object):
         )
 
         parser.add_argument(
-            '--no-bar', '--sober', dest='sober', action='store_true', default=True,
+            '--no-bar', '--sober', dest='sober', action='store_true', default=False,
             help='If set then progress bar will be stripped out'
         )
 
