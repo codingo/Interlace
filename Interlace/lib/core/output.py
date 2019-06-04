@@ -20,7 +20,7 @@ class OutputHelper(object):
 
         print(self.seperator)
         print("Interlace v%s\tby Michael Skelton (@codingo_)" % __version__)
-        print("                  & Sajeeb Lohani (@sml555_)")
+        print("                  \t& Sajeeb Lohani (@sml555_)")
         print(self.seperator)
 
     def terminal(self, level, target, command, message=""):
