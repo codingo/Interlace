@@ -356,7 +356,7 @@ class InputParser(object):
 
         parser.add_argument(
             '--no-bar', '--sober', dest='sober', action='store_true', default=True,
-            help='If set then progress bar be stripped out'
+            help='If set then progress bar will be stripped out'
         )
 
         output_types = parser.add_mutually_exclusive_group()
