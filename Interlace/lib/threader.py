@@ -19,13 +19,14 @@ class Worker(object):
                 if self.tqdm:
                     self.tqdm.update(1)
                 # run task
-                self.run_task(task)
+                self.run_task(task, self.tqdm)
             except IndexError:
                 break
 
     @staticmethod
-    def run_task(task):
-        subprocess.call(task, shell=True)
+    def run_task(task, t):
+        s = subprocess.Popen(task, shell=True, stdout=subprocess.PIPE)
+        t.write(s.stdout.readline().decode("utf-8"))
 
 
 class Pool(object):
