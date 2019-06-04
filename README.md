@@ -32,6 +32,7 @@ Dependencies will then be installed and Interlace will be added to your path as 
 | -pL        | Specify a list of proxies                                                                                    |
 | --proto    | Specify protocols that can be used in commands as \_proto\_                                    |
 | -rp        | Specify a real port variable that can be used in commands as \_realport\_                                    |
+| --no-bar / --sober |  If set then progress bar be stripped out                                                             |
 | --no-cidr  | If set then CIDR notation in a target file will not be automatically be expanded into individual hosts       |
 | --no-color | If set then any foreground or background colours will be stripped out                                        |
 | --silent   | If set then only important information will be displayed and banners and other information will be redacted |
@@ -178,5 +179,5 @@ Using the above example, let's assume you want independent scans to be via diffe
 Originally written by Michael Skelton ([codingo](https://twitter.com/codingo_)) and Sajeeb Lohani ([sml555](https://twitter.com/sml555_)) with help from Charelle Collett ([@Charcol0x89](https://twitter.com/Charcol0x89)) for threading refactoring and overall approach, and Luke Stephens ([hakluke](https://twitter.com/hakluke)) for testing and approach.
 
 # Contributions
-Contributions to this project are very welcome. If you're a newcomer to open source and would like some help in doing so, feel free to reach out to me on twitter ([@codingo_](https://twitter.com/codingo_)) and I'll assist wherever I can.
+Contributions to this project are very welcome. If you're a newcomer to open source and would like some help in doing so, feel free to reach out to us on twitter ([@codingo_](https://twitter.com/codingo_)) / ([@sml555_](https://twitter.com/sml555_)) and we'll assist wherever we can.
 

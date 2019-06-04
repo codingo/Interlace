@@ -21,7 +21,7 @@ def main():
 
     output.print_banner()
 
-    pool = Pool(arguments.threads, build_queue(arguments, output), arguments.timeout, output)
+    pool = Pool(arguments.threads, build_queue(arguments, output), arguments.timeout, output, arguments.sober)
     pool.run()
 
 
