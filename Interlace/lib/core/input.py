@@ -354,6 +354,11 @@ class InputParser(object):
                  'stripped out.'
         )
 
+        parser.add_argument(
+            '--no-bar', '--sober', dest='sober', action='store_true', default=True,
+            help='If set then progress bar be stripped out'
+        )
+
         output_types = parser.add_mutually_exclusive_group()
         output_types.add_argument(
             '-v', '--verbose', dest='verbose', action='store_true', default=False,

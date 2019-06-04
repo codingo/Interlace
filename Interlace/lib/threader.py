@@ -1,19 +1,23 @@
 import threading
 import subprocess
 import os
+from tqdm import tqdm
 
 
 class Worker(object):
-    def __init__(self, queue, timeout, output):
+    def __init__(self, queue, timeout, output, tqdm):
         self.queue = queue
         self.timeout = timeout
         self.output = output
+        self.tqdm = tqdm
 
     def __call__(self):
         while True:
             try:
                 # get task from queue
                 task = self.queue.pop(0)
+                if self.tqdm:
+                    self.tqdm.update(1)
                 # run task
                 self.run_task(task)
             except IndexError:
@@ -25,7 +29,7 @@ class Worker(object):
 
 
 class Pool(object):
-    def __init__(self, max_workers, queue, timeout, output):
+    def __init__(self, max_workers, queue, timeout, output, progress_bar):
         
         # convert stdin input to integer
         max_workers = int(max_workers)
@@ -43,9 +47,14 @@ class Pool(object):
         self.output = output
         self.max_workers = max_workers
 
+        if progress_bar:
+            self.tqdm = tqdm(total=len(queue))
+        else:
+            self.tqdm = False
+
     def run(self):
 
-        workers = [Worker(self.queue, self.timeout, self.output) for w in range(self.max_workers)]
+        workers = [Worker(self.queue, self.timeout, self.output, self.tqdm) for w in range(self.max_workers)]
         threads = []
 
 
@@ -72,5 +81,5 @@ if __name__ == "__main__":
              "sleep 9",
              "sleep 1",
              "echo 'Char!'"]
-    p = Pool(4, tasks, 0, 0)
+    p = Pool(4, tasks, 0, 0, True)
     p.run()
