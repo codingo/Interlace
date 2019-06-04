@@ -16,17 +16,22 @@ class Worker(object):
             try:
                 # get task from queue
                 task = self.queue.pop(0)
-                if self.tqdm:
+                if isinstance(self.tqdm, tqdm):
                     self.tqdm.update(1)
-                # run task
-                self.run_task(task, self.tqdm)
+                    # run task
+                    self.run_task(task, self.tqdm)
+                else:
+                    self.run_task(task)
             except IndexError:
                 break
 
     @staticmethod
-    def run_task(task, t):
-        s = subprocess.Popen(task, shell=True, stdout=subprocess.PIPE)
-        t.write(s.stdout.readline().decode("utf-8"))
+    def run_task(task, t=False):
+        if t:
+            s = subprocess.Popen(task, shell=True, stdout=subprocess.PIPE)
+            t.write(s.stdout.readline().decode("utf-8"))
+        else:
+            subprocess.Popen(task, shell=True)
 
 
 class Pool(object):
@@ -48,10 +53,10 @@ class Pool(object):
         self.output = output
         self.max_workers = max_workers
 
-        if progress_bar:
+        if not progress_bar:
             self.tqdm = tqdm(total=len(queue))
         else:
-            self.tqdm = False
+            self.tqdm = True
 
     def run(self):
 
