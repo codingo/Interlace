@@ -179,5 +179,5 @@ Using the above example, let's assume you want independent scans to be via diffe
 Originally written by Michael Skelton ([codingo](https://twitter.com/codingo_)) and Sajeeb Lohani ([sml555](https://twitter.com/sml555_)) with help from Charelle Collett ([@Charcol0x89](https://twitter.com/Charcol0x89)) for threading refactoring and overall approach, and Luke Stephens ([hakluke](https://twitter.com/hakluke)) for testing and approach.
 
 # Contributions
-Contributions to this project are very welcome. If you're a newcomer to open source and would like some help in doing so, feel free to reach out to me on twitter ([@codingo_](https://twitter.com/codingo_)) and I'll assist wherever I can.
+Contributions to this project are very welcome. If you're a newcomer to open source and would like some help in doing so, feel free to reach out to us on twitter ([@codingo_](https://twitter.com/codingo_)) / ([@sml555_](https://twitter.com/sml555_)) and I'll assist wherever I can.
 
