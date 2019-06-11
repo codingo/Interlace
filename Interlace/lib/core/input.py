@@ -67,9 +67,6 @@ class InputHelper(object):
 
         test = list()
 
-        if not variable in sample(commands, 1)[0]:
-            return commands
-
         for replacement in replacements:
             for command in commands:
                 test.append(str(command).replace(variable, str(replacement)))
