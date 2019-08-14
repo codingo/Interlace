@@ -2,15 +2,24 @@
 import sys
 from Interlace.lib.core.input import InputParser, InputHelper
 from Interlace.lib.core.output import OutputHelper, Level
-from Interlace.lib.threader import Pool
+from Interlace.lib.threader import Pool, TaskBlock
+
+
+def print_command(level, command, message, output):
+    if isinstance(command, TaskBlock):
+        for c in command:
+            print_command(level, c, message, output)
+    else:
+        output.terminal(Level.THREAD, command.name(), "Added to Queue")
 
 
 def build_queue(arguments, output):
-    queue = list()
-    for command in InputHelper.process_commands(arguments):
-        output.terminal(Level.THREAD, command, "Added to Queue")
-        queue.append(command)
-    return queue
+    task_queue = InputHelper.process_commands(arguments)
+    task_list = []
+    for task in task_queue:
+        print_command(Level.THREAD, task, "Added to Queue", output)
+        task_list.append(task)
+    return task_list
 
 
 def main():

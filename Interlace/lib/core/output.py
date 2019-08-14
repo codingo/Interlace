@@ -1,7 +1,9 @@
-from colorclass import Color
-from colorclass import disable_all_colors, enable_all_colors, is_enabled
-from time import localtime, strftime
 from enum import IntEnum
+from time import localtime, strftime
+
+from colorclass import Color
+from colorclass import disable_all_colors
+
 from Interlace.lib.core.__version__ import __version__
 
 
@@ -40,7 +42,7 @@ class OutputHelper(object):
            'target': target,
            'command': command,
            'message': message,
-            'leader':leader
+            'leader': leader
         }
 
         if not self.silent:
