@@ -1,6 +1,6 @@
 import subprocess
+from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import Event
-from threading import Thread
 
 from tqdm import tqdm
 
@@ -8,8 +8,8 @@ from tqdm import tqdm
 class Task(object):
     def __init__(self, command):
         self.task = command
-        self._lock = None
-        self._waiting_for_task = False
+        self.self_lock = None
+        self.sibling_lock = None
 
     def __cmp__(self, other):
         return self.name() == other.name()
@@ -19,36 +19,31 @@ class Task(object):
 
     def clone(self):
         new_task = Task(self.task)
-        new_task._lock = self._lock
-        new_task._waiting_for_task = self._waiting_for_task
+        new_task.self_lock = self.self_lock
+        new_task.sibling_lock = self.sibling_lock
         return new_task
 
     def replace(self, old, new):
         self.task = self.task.replace(old, new)
 
     def run(self, t=False):
-        if not self._waiting_for_task:
-            self._run_task(t)
-            if self._lock:
-                self._lock.set()
-        else:
-            self._lock.wait()
-            self._run_task(t)
+        if self.sibling_lock:
+            self.sibling_lock.wait()
+        self._run_task(t)
+        if self.self_lock:
+            self.self_lock.set()
 
-    def wait_for(self, lock):
-        self._lock = lock
-        self._waiting_for_task = True
-
-    def set_lock(self):
-        if not self._lock:
-            self._lock = Event()
-            self._lock.clear()
+    def wait_for(self, _lock):
+        self.sibling_lock = _lock
 
     def name(self):
         return self.task
 
     def get_lock(self):
-        return self._lock
+        if not self.self_lock:
+            self.self_lock = Event()
+            self.self_lock.clear()
+        return self.self_lock
 
     def _run_task(self, t=False):
         if t:
@@ -56,44 +51,6 @@ class Task(object):
             t.write(s.stdout.readline().decode("utf-8"))
         else:
             subprocess.Popen(self.task, shell=True)
-
-
-class TaskBlock(Task):
-    def __init__(self, name):
-        super().__init__('')
-        self._name = name
-        self.tasks = []
-
-    def name(self):
-        return self._name
-
-    def add_task(self, task):
-        self.tasks.append(task)
-
-    def clear_tasks(self):
-        self.tasks.clear()
-
-    def __len__(self):
-        return len(self.tasks)
-
-    def __hash__(self):
-        hash_value = 0
-        for t in self.tasks:
-            hash_value ^= t.__hash__()
-        return hash_value
-
-    def __iter__(self):
-        return self.tasks.__iter__()
-
-    def last(self):
-        return self.tasks[-1]
-
-    def _run_task(self, t=False):
-        for task in self.tasks:
-            task._run_task(t)
-
-    def get_tasks(self):
-        return self.tasks
 
 
 class Worker(object):
@@ -144,17 +101,11 @@ class Pool(object):
 
     def run(self):
         workers = [Worker(self.queue, self.timeout, self.output, self.tqdm) for w in range(self.max_workers)]
-        threads = []
 
         # run
-        for worker in workers:
-            thread = Thread(target=worker)
-            thread.start()
-            threads.append(thread)
-
-        # wait until all workers have completed their tasks
-        for thread in threads:
-            thread.join()
+        with ThreadPoolExecutor(self.max_workers) as executors:
+            for worker in workers:
+                executors.submit(worker)
 
 
 # test harness

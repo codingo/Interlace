@@ -1,29 +1,23 @@
 #!/usr/bin/python3
-import sys
 
 from Interlace.lib.core.input import InputParser, InputHelper
 from Interlace.lib.core.output import OutputHelper, Level
-from Interlace.lib.threader import Pool, TaskBlock
-
-
-def print_command(level, command, message, output):
-    if isinstance(command, TaskBlock):
-        for c in command:
-            print_command(level, c, message, output)
-    else:
-        output.terminal(Level.THREAD, command.name(), "Added to Queue")
+from Interlace.lib.threader import Pool
 
 
 def build_queue(arguments, output):
     task_list = InputHelper.process_commands(arguments)
     for task in task_list:
-        print_command(Level.THREAD, task, "Added to Queue", output)
+        output.terminal(Level.THREAD, task.name(), "Added to Queue")
     return task_list
 
 
 def main():
     parser = InputParser()
-    arguments = parser.parse(sys.argv[1:])
+    args = ["-cL", "C:\\Users\\user\\Documents\\PythonProjects\\Interlace\\foo.test",
+            "-tL", "C:\\Users\\user\\Documents\\PythonProjects\\Interlace\\bar.test"]
+    arguments = parser.parse(args)
+    # arguments = parser.parse(sys.argv[1:])
 
     output = OutputHelper(arguments)
 

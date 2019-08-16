@@ -2,11 +2,11 @@ import os.path
 import sys
 from argparse import ArgumentParser
 from math import ceil
-from os import access, W_OK
 from random import sample
 
 from netaddr import IPNetwork, IPRange, IPGlob
-from Interlace.lib.threader import TaskBlock, Task
+
+from Interlace.lib.threader import Task
 
 
 class InputHelper(object):
@@ -75,9 +75,10 @@ class InputHelper(object):
         return [port_type]
 
     @staticmethod
-    def _pre_process_commands(command_list, task_name):
-        task_block = TaskBlock(task_name)
-        parent_task = None
+    def _pre_process_commands(command_list, task_name, is_global_task=True):
+        task_block = []
+        sibling = None
+        global_task = None
         for command in command_list:
             command = str(command).strip()
             if not command:
@@ -86,16 +87,23 @@ class InputHelper(object):
                 new_task_name = command.split('_block:')[1][:-1].strip()
                 if task_name == new_task_name:
                     return task_block
-                task = InputHelper._pre_process_commands(command_list, new_task_name)
+                for task in InputHelper._pre_process_commands(command_list, new_task_name, False):
+                    task_block.append(task)
+                    sibling = task
+                continue
             else:
-                task = Task(command)
                 if command == '_blocker_':
-                    parent_task = task_block.last()
-                    parent_task.set_lock()
+                    global_task = sibling
                     continue
-            if parent_task:
-                task.wait_for(parent_task.get_lock())
-            task_block.add_task(task)
+                task = Task(command)
+                if is_global_task and global_task:
+                    print('{} must wait for GLOBAL {}'.format(task.name(), global_task.name()))
+                    task.wait_for(global_task.get_lock())
+                elif sibling:
+                    task.wait_for(sibling.get_lock())
+                    print('{} is waiting for {}'.format(task.name(), sibling.name()))
+                task_block.append(task)
+                sibling = task
         return task_block
 
     @staticmethod
@@ -121,28 +129,20 @@ class InputHelper(object):
 
     @staticmethod
     def _replace_variable_with_commands(commands, variable, replacements):
-        foo = []
+        def add_task(t, item_list):
+            if t not in set(item_list):
+                item_list.append(t)
 
-        def add_task(t):
-            if t not in set(foo):
-                foo.append(t)
-
+        tasks = []
         for command in commands:
-            is_task = not isinstance(command, TaskBlock)
             for replacement in replacements:
-                if is_task and command.name().find(variable) != -1:
+                if command.name().find(variable) != -1:
                     new_task = command.clone()
                     new_task.replace(variable, replacement)
-                    add_task(new_task)
-                elif is_task and command not in set(foo):
-                    add_task(command)
-                elif not is_task:
-                    tasks = [task for task in command.get_tasks()]
-                    command.clear_tasks()
-                    for r in InputHelper._replace_variable_with_commands(tasks, variable, replacements):
-                        command.add_task(r)
-                    add_task(command)
-        return foo
+                    add_task(new_task, tasks)
+                else:
+                    add_task(command, tasks)
+        return tasks
 
     @staticmethod
     def _replace_variable_array(commands, variable, replacement):
@@ -151,10 +151,7 @@ class InputHelper(object):
             return
 
         for counter, command in enumerate(commands):
-            if isinstance(command, TaskBlock):
-                InputHelper._replace_variable_array(command, variable, replacement)
-            else:
-                command.replace(variable, str(replacement[counter]))
+            command.replace(variable, str(replacement[counter]))
 
     @staticmethod
     def process_commands(arguments):
@@ -178,8 +175,8 @@ class InputHelper(object):
             ranges.add(arguments.target)
         else:
             target_file = arguments.target_list
-            if not sys.stdin.isatty():
-                target_file = sys.stdin
+            # if not sys.stdin.isatty():
+            #     target_file = sys.stdin
             ranges.update([target.strip() for target in target_file if target.strip()])
 
         # process exclusions first
@@ -205,8 +202,7 @@ class InputHelper(object):
         if arguments.command:
             commands.append(arguments.command.rstrip('\n'))
         else:
-            tasks = InputHelper._pre_process_commands(arguments.command_list, '')
-            commands = tasks.get_tasks()
+            commands = InputHelper._pre_process_commands(arguments.command_list, '')
 
         commands = InputHelper._replace_variable_with_commands(commands, "_target_", targets)
         commands = InputHelper._replace_variable_with_commands(commands, "_host_", targets)
