@@ -32,7 +32,7 @@ Dependencies will then be installed and Interlace will be added to your path as 
 | -pL        | Specify a list of proxies                                                                                    |
 | --proto    | Specify protocols that can be used in commands as \_proto\_                                                  |
 | -rp        | Specify a real port variable that can be used in commands as \_realport\_                                    |
-| -random    | Specify a directory of files that can be randomly used in commands as _random_                               |
+| -random    | Specify a directory of files that can be randomly used in commands as \_random\_                               |
 | --no-bar / --sober |  If set then progress bar be stripped out                                                            |
 | --no-cidr  | If set then CIDR notation in a target file will not be automatically be expanded into individual hosts       |
 | --no-color | If set then any foreground or background colours will be stripped out                                        |
