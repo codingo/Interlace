@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+import sys
+
 from Interlace.lib.core.input import InputParser, InputHelper
 from Interlace.lib.core.output import OutputHelper, Level
 from Interlace.lib.threader import Pool
@@ -14,10 +16,7 @@ def build_queue(arguments, output):
 
 def main():
     parser = InputParser()
-    args = ["-cL", "C:\\Users\\user\\Documents\\PythonProjects\\Interlace\\foo.test",
-            "-tL", "C:\\Users\\user\\Documents\\PythonProjects\\Interlace\\bar.test"]
-    arguments = parser.parse(args)
-    # arguments = parser.parse(sys.argv[1:])
+    arguments = parser.parse(sys.argv[1:])
 
     output = OutputHelper(arguments)
 

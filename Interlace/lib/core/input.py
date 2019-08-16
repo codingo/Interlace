@@ -76,6 +76,12 @@ class InputHelper(object):
 
     @staticmethod
     def _pre_process_commands(command_list, task_name, is_global_task=True):
+        """
+        :param command_list:
+        :param task_name: all tasks have 'scope' and all scopes have unique names, global scope defaults ''
+        :param is_global_task: when True, signifies that all global tasks are meant to be run concurrently
+        :return:
+        """
         task_block = []
         sibling = None
         global_task = None
@@ -83,21 +89,29 @@ class InputHelper(object):
             command = str(command).strip()
             if not command:
                 continue
+            # the start or end of a command block
             if command.startswith('_block:') and command.endswith('_'):
                 new_task_name = command.split('_block:')[1][:-1].strip()
+                # if this is the end of a block, then we're done
                 if task_name == new_task_name:
                     return task_block
+                # otherwise pre-process all the commands in this new `new_task_name` block
                 for task in InputHelper._pre_process_commands(command_list, new_task_name, False):
                     task_block.append(task)
                     sibling = task
                 continue
             else:
+                # if a blocker is encountered, all commands following the blocker must wait until the last
+                # command in the block is executed. All block commands are synchronous
                 if command == '_blocker_':
                     global_task = sibling
                     continue
                 task = Task(command)
+                # if we're in the global scope and there was a previous _blocker_ encountered, we wait for the last
+                # child of the block
                 if is_global_task and global_task:
                     task.wait_for(global_task.get_lock())
+                # all but the first command in a block scope wait for its predecessor
                 elif sibling and not is_global_task:
                     task.wait_for(sibling.get_lock())
                 task_block.append(task)
@@ -144,7 +158,6 @@ class InputHelper(object):
 
     @staticmethod
     def _replace_variable_array(commands, variable, replacement):
-        # TODO
         if variable not in sample(commands, 1)[0]:
             return
 
@@ -173,8 +186,8 @@ class InputHelper(object):
             ranges.add(arguments.target)
         else:
             target_file = arguments.target_list
-            # if not sys.stdin.isatty():
-            #     target_file = sys.stdin
+            if not sys.stdin.isatty():
+                target_file = sys.stdin
             ranges.update([target.strip() for target in target_file if target.strip()])
 
         # process exclusions first
