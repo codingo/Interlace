@@ -40,7 +40,7 @@ class InputHelper(object):
                     logging_block = False
                     commands_list.append([])
                 else:
-                    print("Warning: _block:%s_ instruction wasn't closed" % block_name)
+                    print("Warning: _block:%s_ instruction wasn't closed" % logging_block)
             elif command == "_blocker_":
                 commands_list.append([])
             elif logging_block:
