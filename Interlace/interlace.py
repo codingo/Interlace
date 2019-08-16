@@ -6,12 +6,11 @@ from Interlace.lib.threader import Pool
 
 
 def build_queue(arguments, output):
-    queue = list()
-    for command in InputHelper.process_commands(arguments):
-        output.terminal(Level.THREAD, command, "Added to Queue")
-        queue.append(command)
+    queue = InputHelper.process_commands(arguments)
+    for command_list in queue:
+        for command in command_list:
+            output.terminal(Level.THREAD, command, "Added to Queue")
     return queue
-
 
 def main():
     parser = InputParser()

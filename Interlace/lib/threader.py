@@ -59,20 +59,20 @@ class Pool(object):
             self.tqdm = True
 
     def run(self):
+        # sequentially run per command_list
+        for command_list in self.queue:
+            workers = [Worker(command_list, self.timeout, self.output, self.tqdm) for w in range(self.max_workers)]
+            threads = []
 
-        workers = [Worker(self.queue, self.timeout, self.output, self.tqdm) for w in range(self.max_workers)]
-        threads = []
+            # run
+            for worker in workers:
+                thread = threading.Thread(target=worker)
+                thread.start()
+                threads.append(thread)
 
-
-        # run
-        for worker in workers:
-            thread = threading.Thread(target=worker)
-            thread.start()
-            threads.append(thread)
-
-        # wait until all workers have completed their tasks
-        for thread in threads:
-            thread.join()
+            # wait until all workers have completed their tasks
+            for thread in threads:
+                thread.join()
 
 # test harness
 if __name__ == "__main__":

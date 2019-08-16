@@ -8,7 +8,6 @@ from re import compile
 from random import sample
 from math import ceil
 
-
 class InputHelper(object):
     @staticmethod
     def readable_file(parser, arg):
@@ -16,7 +15,7 @@ class InputHelper(object):
             parser.error("The file %s does not exist!" % arg)
         else:
             return open(arg, 'r')  # return an open file handle
-
+    
     @staticmethod
     def check_positive(parser, arg):
         ivalue = int(arg)
@@ -63,43 +62,37 @@ class InputHelper(object):
 
     @staticmethod
     def _replace_variable_for_commands(commands, variable, replacements):
-        tmp_commands = set()
-
-        test = list()
+        tmp_commands = list()
 
         for replacement in replacements:
             for command in commands:
-                test.append(str(command).replace(variable, str(replacement)))
+                tmp_commands.append(str(command).replace(variable, str(replacement)))
 
-        tmp_commands.update(test)
         return tmp_commands
         
     @staticmethod
     def _replace_variable_array(commands, variable, replacement):
-        tmp_commands = set()
+        tmp_commands = list()
         counter = 0
-
-        test = list()
 
         if not variable in sample(commands, 1)[0]:
             return commands
 
         for command in commands:
-            test.append(str(command).replace(variable, str(replacement[counter])))
+            tmp_commands.append(str(command).replace(variable, str(replacement[counter])))
             counter += 1
 
-        tmp_commands.update(test)
         return tmp_commands
 
 
     @staticmethod
     def process_commands(arguments):
-        commands = set()
+        commands = list()
         ranges = set()
         targets = set()
         exclusions_ranges = set()
         exclusions = set()
-        final_commands = set()
+        final_commands = list()
         output = OutputHelper(arguments)
 
         # removing the trailing slash if any
@@ -128,7 +121,6 @@ class InputHelper(object):
                 real_ports = list(range(int(tmp_ports[0]), int(tmp_ports[1]) + 1))
             else:
                 real_ports = [arguments.realport]
-
 
         # process targets first
         if arguments.target:
@@ -199,10 +191,10 @@ class InputHelper(object):
             raise Exception("No target provided, or empty target list")
 
         if arguments.command:
-            commands.add(arguments.command.rstrip('\n'))
+            commands.append(arguments.command.rstrip('\n'))
         else:
             for command in arguments.command_list:
-                commands.add(command.rstrip('\n'))
+                commands.append(command.rstrip('\n'))
 
         final_commands = InputHelper._replace_variable_for_commands(commands, "_target_", targets)
         final_commands = InputHelper._replace_variable_for_commands(final_commands, "_host_", targets)
@@ -235,7 +227,30 @@ class InputHelper(object):
 
             final_commands = InputHelper._replace_variable_array(final_commands, "_proxy_", proxy_list)
 
-        return final_commands
+        commands_list = [[]]
+        logging_block = False
+        for command in final_commands:
+            if command.startswith("_block:") and command.endswith("_"):
+                block_name = command.split("_block:")[-1][:-1]
+                if not logging_block:
+                    # Start logging
+                    logging_block = block_name
+                elif logging_block == block_name:
+                    # Stop logging
+                    logging_block = False
+                    commands_list.append([])
+                else:
+                    print("Warning: _block:%s_ instruction wasn't closed" % block_name)
+            elif command == "_blocker_":
+                commands_list.append([])
+            elif logging_block:
+                # Add command as its own array (since blocking is enabled)
+                commands_list.append([command])
+            else:
+                # Add command onto last array (since blocking is disabled)
+                commands_list[-1].append(command)
+
+        return commands_list
 
 
 class InputParser(object):
