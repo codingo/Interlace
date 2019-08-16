@@ -102,10 +102,9 @@ class InputHelper(object):
         final_commands = set()
         output = OutputHelper(arguments)
 
-        # checking for whether output is writable and whether it exists
-        if arguments.output:
-            if not access(arguments.output, W_OK):
-                raise Exception("Directory provided isn't writable")
+        # removing the trailing slash if any
+        if arguments.output[-1] == "/":
+            arguments.output = arguments.output[:-1]
 
         if arguments.port:
             if "," in arguments.port:
