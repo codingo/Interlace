@@ -11,8 +11,17 @@ class Task(object):
         self._lock = None
         self._waiting_for_task = False
 
+    def __cmp__(self, other):
+        return self.name() == other.name()
+
     def __hash__(self):
         return self.task.__hash__()
+
+    def clone(self):
+        new_task = Task(self.task)
+        new_task._lock = self._lock
+        new_task._waiting_for_task = self._waiting_for_task
+        return new_task
 
     def replace(self, old, new):
         self.task = self.task.replace(old, new)

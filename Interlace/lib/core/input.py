@@ -121,12 +121,23 @@ class InputHelper(object):
 
     @staticmethod
     def _replace_variable_with_commands(commands, variable, replacements):
-        for replacement in replacements:
-            for command in commands:
-                if isinstance(command, TaskBlock):
-                    InputHelper._replace_variable_with_commands(command, variable, replacements)
-                else:
-                    command.replace(variable, str(replacement))
+        data = set()
+        for command in commands:
+            is_task_block = isinstance(command, TaskBlock)
+            for replacement in replacements:
+                if not is_task_block and command.name().find(variable) != -1:
+                    new_task = command.clone()
+                    new_task.replace(variable, replacement)
+                    data.add(new_task)
+                elif not is_task_block and command not in data:
+                    data.add(command)
+                elif is_task_block:
+                    new_task_block = TaskBlock(command.name())
+                    result = InputHelper._replace_variable_with_commands(command.get_tasks(), variable, replacements)
+                    for r in result:
+                        new_task_block.add_task(r)
+                    data.add(new_task_block)
+        return set(data)
 
     @staticmethod
     def _replace_variable_array(commands, variable, replacement):
@@ -166,14 +177,17 @@ class InputHelper(object):
             target_file = arguments.target_list
             if not sys.stdin.isatty():
                 target_file = sys.stdin
-            ranges.update([target for target in target_file if target.strip()])
+            ranges.update([target.strip() for target in target_file if target.strip()])
 
         # process exclusions first
         if arguments.exclusions:
             exclusions_ranges.add(arguments.exclusions)
         else:
             if arguments.exclusions_list:
-                exclusions_ranges.update([exclusion for exclusion in arguments.exclusions_list if exclusion.strip()])
+                for exclusion in arguments.exclusions_list:
+                    exclusion = exclusion.strip()
+                    if exclusion:
+                        exclusions.add(exclusion)
 
         # removing elements that may have spaces (helpful for easily processing comma notation)
         InputHelper._pre_process_hosts(ranges, targets, arguments)
@@ -191,24 +205,24 @@ class InputHelper(object):
             tasks = InputHelper._pre_process_commands(arguments.command_list, '')
             commands.update(tasks.get_tasks())
 
-        InputHelper._replace_variable_with_commands(commands, "_target_", targets)
-        InputHelper._replace_variable_with_commands(commands, "_host_", targets)
+        commands = InputHelper._replace_variable_with_commands(commands, "_target_", targets)
+        commands = InputHelper._replace_variable_with_commands(commands, "_host_", targets)
 
         if arguments.port:
-            InputHelper._replace_variable_with_commands(commands, "_port_", ports)
+            commands = InputHelper._replace_variable_with_commands(commands, "_port_", ports)
 
         if arguments.realport:
-            InputHelper._replace_variable_with_commands(commands, "_realport_", real_ports)
+            commands = InputHelper._replace_variable_with_commands(commands, "_realport_", real_ports)
 
         if arguments.output:
-            InputHelper._replace_variable_with_commands(commands, "_output_", [arguments.output])
+            commands = InputHelper._replace_variable_with_commands(commands, "_output_", [arguments.output])
 
         if arguments.proto:
             if "," in arguments.proto:
                 protocols = arguments.proto.split(",")
             else:
                 protocols = arguments.proto
-            InputHelper._replace_variable_with_commands(commands, "_proto_", protocols)
+            commands = InputHelper._replace_variable_with_commands(commands, "_proto_", protocols)
 
         # process proxies
         if arguments.proxy_list:
