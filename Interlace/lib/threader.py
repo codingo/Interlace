@@ -70,6 +70,9 @@ class TaskBlock(Task):
     def add_task(self, task):
         self.tasks.append(task)
 
+    def clear_tasks(self):
+        self.tasks.clear()
+
     def __len__(self):
         return len(self.tasks)
 

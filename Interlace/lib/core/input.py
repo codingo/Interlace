@@ -123,20 +123,20 @@ class InputHelper(object):
     def _replace_variable_with_commands(commands, variable, replacements):
         data = set()
         for command in commands:
-            is_task_block = isinstance(command, TaskBlock)
+            is_task = not isinstance(command, TaskBlock)
             for replacement in replacements:
-                if not is_task_block and command.name().find(variable) != -1:
+                if is_task and command.name().find(variable) != -1:
                     new_task = command.clone()
                     new_task.replace(variable, replacement)
                     data.add(new_task)
-                elif not is_task_block and command not in data:
+                elif is_task and command not in data:
                     data.add(command)
-                elif is_task_block:
-                    new_task_block = TaskBlock(command.name())
-                    result = InputHelper._replace_variable_with_commands(command.get_tasks(), variable, replacements)
-                    for r in result:
-                        new_task_block.add_task(r)
-                    data.add(new_task_block)
+                elif not is_task:
+                    tasks = [task for task in command.get_tasks()]
+                    command.clear_tasks()
+                    for r in InputHelper._replace_variable_with_commands(tasks, variable, replacements):
+                        command.add_task(r)
+                    data.add(command)
         return set(data)
 
     @staticmethod
@@ -175,8 +175,8 @@ class InputHelper(object):
             ranges.add(arguments.target)
         else:
             target_file = arguments.target_list
-            if not sys.stdin.isatty():
-                target_file = sys.stdin
+            # if not sys.stdin.isatty():
+            #     target_file = sys.stdin
             ranges.update([target.strip() for target in target_file if target.strip()])
 
         # process exclusions first
