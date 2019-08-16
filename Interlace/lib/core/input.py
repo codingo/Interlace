@@ -103,8 +103,9 @@ class InputHelper(object):
         output = OutputHelper(arguments)
 
         # removing the trailing slash if any
-        if arguments.output[-1] == "/":
-            arguments.output = arguments.output[:-1]
+        if arguments.output:
+            if arguments.output[-1] == "/":
+                arguments.output = arguments.output[:-1]
 
         if arguments.port:
             if "," in arguments.port:
