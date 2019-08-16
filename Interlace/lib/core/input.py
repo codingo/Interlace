@@ -121,23 +121,28 @@ class InputHelper(object):
 
     @staticmethod
     def _replace_variable_with_commands(commands, variable, replacements):
-        data = set()
+        foo = []
+
+        def add_task(t):
+            if t not in set(foo):
+                foo.append(t)
+
         for command in commands:
             is_task = not isinstance(command, TaskBlock)
             for replacement in replacements:
                 if is_task and command.name().find(variable) != -1:
                     new_task = command.clone()
                     new_task.replace(variable, replacement)
-                    data.add(new_task)
-                elif is_task and command not in data:
-                    data.add(command)
+                    add_task(new_task)
+                elif is_task and command not in set(foo):
+                    add_task(command)
                 elif not is_task:
                     tasks = [task for task in command.get_tasks()]
                     command.clear_tasks()
                     for r in InputHelper._replace_variable_with_commands(tasks, variable, replacements):
                         command.add_task(r)
-                    data.add(command)
-        return set(data)
+                    add_task(command)
+        return foo
 
     @staticmethod
     def _replace_variable_array(commands, variable, replacement):
@@ -153,13 +158,13 @@ class InputHelper(object):
 
     @staticmethod
     def process_commands(arguments):
-        commands = set()
+        commands = list()
         ranges = set()
         targets = set()
         exclusions_ranges = set()
         exclusions = set()
 
-        if arguments.output[-1] == "/":
+        if arguments.output and arguments.output[-1] == "/":
             arguments.output = arguments.output[:-1]
 
         if arguments.port:
@@ -173,8 +178,8 @@ class InputHelper(object):
             ranges.add(arguments.target)
         else:
             target_file = arguments.target_list
-            # if not sys.stdin.isatty():
-            #     target_file = sys.stdin
+            if not sys.stdin.isatty():
+                target_file = sys.stdin
             ranges.update([target.strip() for target in target_file if target.strip()])
 
         # process exclusions first
@@ -198,10 +203,10 @@ class InputHelper(object):
             raise Exception("No target provided, or empty target list")
 
         if arguments.command:
-            commands.add(arguments.command.rstrip('\n'))
+            commands.append(arguments.command.rstrip('\n'))
         else:
             tasks = InputHelper._pre_process_commands(arguments.command_list, '')
-            commands.update(tasks.get_tasks())
+            commands = tasks.get_tasks()
 
         commands = InputHelper._replace_variable_with_commands(commands, "_target_", targets)
         commands = InputHelper._replace_variable_with_commands(commands, "_host_", targets)
