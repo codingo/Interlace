@@ -5,9 +5,8 @@ import os.path
 from os import access, W_OK
 import sys
 from re import compile
-from random import sample
+from random import sample, choice
 from math import ceil
-import random
 
 
 class InputHelper(object):
@@ -216,7 +215,7 @@ class InputHelper(object):
 
         if arguments.random:
             files = InputHelper._get_files_from_directory(arguments.random)
-            random_file = random.choice(files)
+            random_file = choice(files)
 
         if arguments.command:
             commands.add(arguments.command.rstrip('\n'))
