@@ -23,7 +23,6 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-*.test
 MANIFEST
 
 # PyInstaller
