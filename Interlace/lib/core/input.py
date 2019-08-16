@@ -97,11 +97,9 @@ class InputHelper(object):
                     continue
                 task = Task(command)
                 if is_global_task and global_task:
-                    print('{} must wait for GLOBAL {}'.format(task.name(), global_task.name()))
                     task.wait_for(global_task.get_lock())
-                elif sibling:
+                elif sibling and not is_global_task:
                     task.wait_for(sibling.get_lock())
-                    print('{} is waiting for {}'.format(task.name(), sibling.name()))
                 task_block.append(task)
                 sibling = task
         return task_block
