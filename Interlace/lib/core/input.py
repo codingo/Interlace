@@ -173,8 +173,8 @@ class InputHelper(object):
             ranges.add(arguments.target)
         else:
             target_file = arguments.target_list
-            # if not sys.stdin.isatty():
-            #     target_file = sys.stdin
+            if not sys.stdin.isatty():
+                target_file = sys.stdin
             ranges.update([target.strip() for target in target_file if target.strip()])
 
         # process exclusions first
