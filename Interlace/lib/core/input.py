@@ -2,11 +2,11 @@ import os.path
 import sys
 from argparse import ArgumentParser
 from math import ceil
-from os import access, W_OK
 from random import sample
 
 from netaddr import IPNetwork, IPRange, IPGlob
-from Interlace.lib.threader import TaskBlock, Task
+
+from Interlace.lib.threader import Task
 
 
 class InputHelper(object):
@@ -75,27 +75,47 @@ class InputHelper(object):
         return [port_type]
 
     @staticmethod
-    def _pre_process_commands(command_list, task_name):
-        task_block = TaskBlock(task_name)
-        parent_task = None
+    def _pre_process_commands(command_list, task_name, is_global_task=True):
+        """
+        :param command_list:
+        :param task_name: all tasks have 'scope' and all scopes have unique names, global scope defaults ''
+        :param is_global_task: when True, signifies that all global tasks are meant to be run concurrently
+        :return:
+        """
+        task_block = []
+        sibling = None
+        global_task = None
         for command in command_list:
             command = str(command).strip()
             if not command:
                 continue
+            # the start or end of a command block
             if command.startswith('_block:') and command.endswith('_'):
                 new_task_name = command.split('_block:')[1][:-1].strip()
+                # if this is the end of a block, then we're done
                 if task_name == new_task_name:
                     return task_block
-                task = InputHelper._pre_process_commands(command_list, new_task_name)
+                # otherwise pre-process all the commands in this new `new_task_name` block
+                for task in InputHelper._pre_process_commands(command_list, new_task_name, False):
+                    task_block.append(task)
+                    sibling = task
+                continue
             else:
-                task = Task(command)
+                # if a blocker is encountered, all commands following the blocker must wait until the last
+                # command in the block is executed. All block commands are synchronous
                 if command == '_blocker_':
-                    parent_task = task_block.last()
-                    parent_task.set_lock()
+                    global_task = sibling
                     continue
-            if parent_task:
-                task.wait_for(parent_task.get_lock())
-            task_block.add_task(task)
+                task = Task(command)
+                # if we're in the global scope and there was a previous _blocker_ encountered, we wait for the last
+                # child of the block
+                if is_global_task and global_task:
+                    task.wait_for(global_task.get_lock())
+                # all but the first command in a block scope wait for its predecessor
+                elif sibling and not is_global_task:
+                    task.wait_for(sibling.get_lock())
+                task_block.append(task)
+                sibling = task
         return task_block
 
     @staticmethod
@@ -121,40 +141,28 @@ class InputHelper(object):
 
     @staticmethod
     def _replace_variable_with_commands(commands, variable, replacements):
-        foo = []
+        def add_task(t, item_list):
+            if t not in set(item_list):
+                item_list.append(t)
 
-        def add_task(t):
-            if t not in set(foo):
-                foo.append(t)
-
+        tasks = []
         for command in commands:
-            is_task = not isinstance(command, TaskBlock)
             for replacement in replacements:
-                if is_task and command.name().find(variable) != -1:
+                if command.name().find(variable) != -1:
                     new_task = command.clone()
                     new_task.replace(variable, replacement)
-                    add_task(new_task)
-                elif is_task and command not in set(foo):
-                    add_task(command)
-                elif not is_task:
-                    tasks = [task for task in command.get_tasks()]
-                    command.clear_tasks()
-                    for r in InputHelper._replace_variable_with_commands(tasks, variable, replacements):
-                        command.add_task(r)
-                    add_task(command)
-        return foo
+                    add_task(new_task, tasks)
+                else:
+                    add_task(command, tasks)
+        return tasks
 
     @staticmethod
     def _replace_variable_array(commands, variable, replacement):
-        # TODO
         if variable not in sample(commands, 1)[0]:
             return
 
         for counter, command in enumerate(commands):
-            if isinstance(command, TaskBlock):
-                InputHelper._replace_variable_array(command, variable, replacement)
-            else:
-                command.replace(variable, str(replacement[counter]))
+            command.replace(variable, str(replacement[counter]))
 
     @staticmethod
     def process_commands(arguments):
@@ -205,8 +213,7 @@ class InputHelper(object):
         if arguments.command:
             commands.append(arguments.command.rstrip('\n'))
         else:
-            tasks = InputHelper._pre_process_commands(arguments.command_list, '')
-            commands = tasks.get_tasks()
+            commands = InputHelper._pre_process_commands(arguments.command_list, '')
 
         commands = InputHelper._replace_variable_with_commands(commands, "_target_", targets)
         commands = InputHelper._replace_variable_with_commands(commands, "_host_", targets)
