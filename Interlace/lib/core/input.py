@@ -159,10 +159,8 @@ class InputHelper(object):
         exclusions_ranges = set()
         exclusions = set()
 
-        # checking if output is writable and exists
-        if arguments.output:
-            if not access(arguments.output, W_OK):
-                raise Exception("Directory provided isn't writable")
+        if arguments.output[-1] == "/":
+            arguments.output = arguments.output[:-1]
 
         if arguments.port:
             ports = InputHelper._process_port(arguments.port)
