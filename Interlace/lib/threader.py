@@ -62,7 +62,7 @@ class Pool(object):
         # sequentially run per command_list
         for command_list in self.queue:
             workers = [Worker(command_list, self.timeout, self.output, self.tqdm) for w in range(self.max_workers)]
-            threads = []
+            threads = list()
 
             # run
             for worker in workers:
