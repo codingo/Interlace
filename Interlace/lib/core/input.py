@@ -1,9 +1,10 @@
 import os.path
 import sys
-from argparse import ArgumentParser
-from math import ceil
-from random import sample
 
+from argparse import ArgumentParser
+from re import compile
+from random import sample, choice
+from math import ceil
 from netaddr import IPNetwork, IPRange, IPGlob
 
 from Interlace.lib.threader import Task
@@ -11,12 +12,17 @@ from Interlace.lib.threader import Task
 
 class InputHelper(object):
     @staticmethod
-    def readable_file(parser, arg):
+    def check_path(parser, arg):
         if not os.path.exists(arg):
-            parser.error("The file %s does not exist!" % arg)
+            parser.error("The path %s does not exist!" % arg)
         else:
-            return open(arg, 'r')  # return an open file handle
+            return arg
 
+    @staticmethod
+    def readable_file(parser, arg):
+        if InputHelper.check_path(parser, arg):
+            return open(arg, 'r')  # return an open file handle
+            
     @staticmethod
     def check_positive(parser, arg):
         ivalue = int(arg)
@@ -24,6 +30,17 @@ class InputHelper(object):
             raise parser.ArgumentTypeError("%s is not a valid positive integer!" % arg)
 
         return arg
+
+    @staticmethod
+    def _get_files_from_directory(arg):
+        files = list()
+
+        for file in os.listdir(arg):
+            location = os.path.join(arg, file)
+            if os.path.isfile(location):
+                files.append(location)
+
+        return files
 
     @staticmethod
     def _get_ips_from_range(ip_range):
@@ -80,7 +97,7 @@ class InputHelper(object):
         :param command_list:
         :param task_name: all tasks have 'scope' and all scopes have unique names, global scope defaults ''
         :param is_global_task: when True, signifies that all global tasks are meant to be run concurrently
-        :return:
+        :return: list of possibly re-adjusted commands
         """
         task_block = []
         sibling = None
@@ -172,6 +189,7 @@ class InputHelper(object):
         exclusions_ranges = set()
         exclusions = set()
 
+        # removing the trailing slash if any
         if arguments.output and arguments.output[-1] == "/":
             arguments.output = arguments.output[:-1]
 
@@ -210,6 +228,10 @@ class InputHelper(object):
         if len(targets) == 0:
             raise Exception("No target provided, or empty target list")
 
+        if arguments.random:
+            files = InputHelper._get_files_from_directory(arguments.random)
+            random_file = choice(files)
+
         if arguments.command:
             commands.append(arguments.command.rstrip('\n'))
         else:
@@ -223,6 +245,9 @@ class InputHelper(object):
 
         if arguments.realport:
             commands = InputHelper._replace_variable_with_commands(commands, "_realport_", real_ports)
+        
+        if arguments.random:
+            commands = InputHelper._replace_variable_for_commands(commands, "_random_", [random_file])
 
         if arguments.output:
             commands = InputHelper._replace_variable_with_commands(commands, "_output_", [arguments.output])
@@ -343,6 +368,12 @@ class InputParser(object):
         parser.add_argument(
             '-rp', dest='realport',
             help='Specify a real port variable that can be used in commands as _realport_'
+        )
+
+        parser.add_argument(
+            '-random', dest='random',
+            help='Specify a directory of files that can be randomly used in commands as _random_',
+            type=lambda x: InputHelper.check_path(parser, x)
         )
 
         parser.add_argument(
