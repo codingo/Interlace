@@ -30,12 +30,13 @@ Dependencies will then be installed and Interlace will be added to your path as 
 | -o         | Specify an output folder variable that can be used in commands as \_output\_                                 |
 | -p         | Specify a list of port variable that can be used in commands as \_port\_. This can be a single port, a comma delimited list, or use dash notation |
 | -pL        | Specify a list of proxies                                                                                    |
-| --proto    | Specify protocols that can be used in commands as \_proto\_                                    |
+| --proto    | Specify protocols that can be used in commands as \_proto\_                                                  |
 | -rp        | Specify a real port variable that can be used in commands as \_realport\_                                    |
-| --no-bar / --sober |  If set then progress bar be stripped out                                                             |
+| -random    | Specify a directory of files that can be randomly used in commands as \_random\_                               |
+| --no-bar / --sober |  If set then progress bar be stripped out                                                            |
 | --no-cidr  | If set then CIDR notation in a target file will not be automatically be expanded into individual hosts       |
 | --no-color | If set then any foreground or background colours will be stripped out                                        |
-| --silent   | If set then only important information will be displayed and banners and other information will be redacted |
+| --silent   | If set then only important information will be displayed and banners and other information will be redacted  |
 | -v         | If set then verbose output will be displayed in the terminal                                                 |
 
 ## Further information regarding ports (-p)
@@ -62,6 +63,7 @@ The following variables will be replaced in commands at runtime:
 | \_port\_     | Replaced with the expanded port variable from interlace                       |
 | \_realport\_ | Replaced with the real port variable from interlace                  |
 | \_proxy\_    | Replaced with the proxy list from interlace |
+| \_random\_   | Replaced with the randomly-chosen file from interlace | 
 
 # Usage Examples
 ## Run Nikto Over Multiple Sites
