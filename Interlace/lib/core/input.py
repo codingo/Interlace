@@ -26,7 +26,7 @@ class InputHelper(object):
 
     @staticmethod
     def _process_blockers(commands):
-        commands_list = [[]]
+        command_lists = [[]]
         logging_block = False
 
         for command in commands:
@@ -38,19 +38,19 @@ class InputHelper(object):
                 elif logging_block == block_name:
                     # Stop logging
                     logging_block = False
-                    commands_list.append([])
+                    command_lists.append([])
                 else:
                     print("Warning: _block:%s_ instruction wasn't closed" % logging_block)
             elif command == "_blocker_":
-                commands_list.append([])
+                command_lists.append([])
             elif logging_block:
                 # Add command as its own array (since blocking is enabled)
-                commands_list.append([command])
+                command_lists.append([command])
             else:
                 # Add command onto last array (since blocking is disabled)
-                commands_list[-1].append(command)
+                command_lists[-1].append(command)
 
-        return commands_list
+        return command_lists
 
     @staticmethod
     def _get_ips_from_range(ip_range):
