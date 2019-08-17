@@ -1,10 +1,9 @@
 import os.path
 import sys
-
 from argparse import ArgumentParser
-from re import compile
-from random import sample, choice
 from math import ceil
+from random import sample, choice
+
 from netaddr import IPNetwork, IPRange, IPGlob
 
 from Interlace.lib.threader import Task
@@ -247,7 +246,7 @@ class InputHelper(object):
             commands = InputHelper._replace_variable_with_commands(commands, "_realport_", real_ports)
         
         if arguments.random:
-            commands = InputHelper._replace_variable_for_commands(commands, "_random_", [random_file])
+            commands = InputHelper._replace_variable_with_commands(commands, "_random_", [random_file])
 
         if arguments.output:
             commands = InputHelper._replace_variable_with_commands(commands, "_output_", [arguments.output])
