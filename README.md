@@ -11,7 +11,7 @@ Easily turn single threaded command line applications into a fast, multi-threade
 # Table of Contents
 - [Setup](#Setup)
 - [Usage](#Usage)
-- [Further information regarding ports (-p)](# Further information regarding ports (-p)
+- [Further information regarding ports (-p)](# Further information regarding ports (-p))
 
 # Setup 
 Install using:
