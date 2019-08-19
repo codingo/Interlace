@@ -14,6 +14,10 @@ Easily turn single threaded command line applications into a fast, multi-threade
 - [Further information regarding ports](#Further-information-regarding-ports)
 - [Further information regarding targets](#Further-information-regarding-targets)
 - [Variable Replacements](#Variable-Replacements)
+- [Advanced Usage: Blocker](#Blocker)
+- [Advanced Usage: Blocks](#Blocks)
+- [Usage Examples](#Usage-Examples)
+- [Exclusions](#Exclusions)
 
 # Setup 
 Install using:
@@ -209,8 +213,6 @@ Using the above example, let's assume you want independent scans to be via diffe
 ```
 ➜  /tmp interlace -tL ./targets.txt -pL ./proxies.txt -threads 5 -c "nikto --host _target_:_port_ -useproxy _proxy_ > ./_target_-_port_-nikto.txt" -p 80,443 -v
 ```
-
-
 
 # Authors and Thanks
 Originally written by Michael Skelton ([codingo](https://twitter.com/codingo_)) and Sajeeb Lohani ([sml555](https://twitter.com/sml555_)) with help from Charelle Collett ([@Charcol0x89](https://twitter.com/Charcol0x89)) for threading refactoring and overall approach, and Luke Stephens ([hakluke](https://twitter.com/hakluke)) for testing and approach.
