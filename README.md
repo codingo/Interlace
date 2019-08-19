@@ -11,7 +11,9 @@ Easily turn single threaded command line applications into a fast, multi-threade
 # Table of Contents
 - [Setup](#Setup)
 - [Usage](#Usage)
-- [Further information regarding ports (-p)](#Further-information-regarding-ports)
+- [Further information regarding ports](#Further-information-regarding-ports)
+- [Further information regarding targets](#Further-information-regarding-targets)
+- [Variable Replacements](#Variable-Replacements)
 
 # Setup 
 Install using:
@@ -46,7 +48,7 @@ Dependencies will then be installed and Interlace will be added to your path as 
 | --silent   | If set then only important information will be displayed and banners and other information will be redacted  |
 | -v         | If set then verbose output will be displayed in the terminal                                                 |
 
-## Further information regarding ports (-p)
+## Further information regarding ports
 
 | Example | Notation Type                                            |
 |---------|----------------------------------------------------------|
@@ -54,7 +56,7 @@ Dependencies will then be installed and Interlace will be added to your path as 
 | 1-80    | Dash notation, perform a command for each port from 1-80 |
 | 80,443  | Perform a command for both port 80, and port 443         |
 
-## Further information regarding targets (-t or -tL)
+## Further information regarding targets
 Both `-t` and `-tL` will be processed the same. You can pass targets the same as you would when using nmap. This can be done using CIDR notation, dash notation, or a comma-delimited list of targets. A single target list file can also use different notation types per line.
 
 Alternatively, you can pass targets in via stdin and neither -t or -tL will be required.
