@@ -65,6 +65,32 @@ The following variables will be replaced in commands at runtime:
 | \_proxy\_    | Replaced with the proxy list from interlace |
 | \_random\_   | Replaced with the randomly-chosen file from interlace | 
 
+# Advanced Command File Usage (block and blocker)
+Interlace also makes the use of two additional features for controlling execution flow within a command file: `\_blocker\_` and `\_block:<name>\_`.
+
+## Blocker
+Blockers prevent anything below them from executing until all commands above them have completed (for the currently active host). For example, in the following:
+
+```
+mkdir -p _output_/_target_/scans/
+_blocker_
+nmap _target_ -oA _output_/_target_/scans/_target_-nmap
+```
+
+The use of a blocker here prevents nmap from running on a target before the base folder structure has been created, preventing nmap from throwing an exception.
+
+## Blocks
+Blocks force everything within them to run sequentially. You can also use multiple blocks per command file. For example, in the following:
+
+```
+_block:nmap_
+mkdir -p _target_/output/scans/
+nmap _target_ -oN _target_/output/scans/_target_-nmap
+_block:nmap_
+nikto --host _target_
+```
+In this example, the block would run the same as before, but assuming the thread count is high enough then nikto would begin to run immediately, passing results back to the terminal (whilst nmap and file creation happened in the background).
+
 # Usage Examples
 ## Run Nikto Over Multiple Sites
 Let's assume that you have a file `targets.txt`  that has the following contents:
