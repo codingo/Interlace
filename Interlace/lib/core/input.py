@@ -1,12 +1,12 @@
-from argparse import ArgumentParser
-from netaddr import IPNetwork, IPRange, IPGlob
-from Interlace.lib.core.output import OutputHelper, Level
 import os.path
-from os import access, W_OK
 import sys
-from re import compile
-from random import sample, choice
+from argparse import ArgumentParser
 from math import ceil
+from random import sample, choice
+
+from netaddr import IPNetwork, IPRange, IPGlob
+
+from Interlace.lib.threader import Task
 
 
 class InputHelper(object):
@@ -78,83 +78,134 @@ class InputHelper(object):
         return ips
 
     @staticmethod
-    def _replace_variable_for_commands(commands, variable, replacements):
-        tmp_commands = set()
+    def _process_port(port_type):
+        if "," in port_type:
+            return port_type.split(",")
+        elif "-" in port_type:
+            tmp = port_type.split("-")
+            begin_range = int(tmp[0])
+            end_range = int(tmp[1])
+            if begin_range >= end_range:
+                raise Exception("Invalid range provided")
+            return list(range(begin_range, end_range + 1))
+        return [port_type]
 
-        test = list()
+    @staticmethod
+    def _pre_process_commands(command_list, task_name, is_global_task=True):
+        """
+        :param command_list:
+        :param task_name: all tasks have 'scope' and all scopes have unique names, global scope defaults ''
+        :param is_global_task: when True, signifies that all global tasks are meant to be run concurrently
+        :return: list of possibly re-adjusted commands
+        """
+        task_block = []
+        sibling = None
+        global_task = None
+        for command in command_list:
+            command = str(command).strip()
+            if not command:
+                continue
+            # the start or end of a command block
+            if command.startswith('_block:') and command.endswith('_'):
+                new_task_name = command.split('_block:')[1][:-1].strip()
+                # if this is the end of a block, then we're done
+                if task_name == new_task_name:
+                    return task_block
+                # otherwise pre-process all the commands in this new `new_task_name` block
+                for task in InputHelper._pre_process_commands(command_list, new_task_name, False):
+                    task_block.append(task)
+                    sibling = task
+                continue
+            else:
+                # if a blocker is encountered, all commands following the blocker must wait until the last
+                # command in the block is executed. All block commands are synchronous
+                if command == '_blocker_':
+                    global_task = sibling
+                    continue
+                task = Task(command)
+                # if we're in the global scope and there was a previous _blocker_ encountered, we wait for the last
+                # child of the block
+                if is_global_task and global_task:
+                    task.wait_for(global_task.get_lock())
+                # all but the first command in a block scope wait for its predecessor
+                elif sibling and not is_global_task:
+                    task.wait_for(sibling.get_lock())
+                task_block.append(task)
+                sibling = task
+        return task_block
 
-        for replacement in replacements:
-            for command in commands:
-                test.append(str(command).replace(variable, str(replacement)))
+    @staticmethod
+    def _pre_process_hosts(host_ranges, destination_set, arguments):
+        for host in host_ranges:
+            host = host.replace(" ", "")
+            for ips in host.split(","):
+                # check if it is a domain name
+                if ips.split(".")[-1][0].isalpha():
+                    destination_set.add(ips)
+                    continue
+                # checking for CIDR
+                if not arguments.nocidr and "/" in ips:
+                    destination_set.update(InputHelper._get_cidr_to_ips(ips))
+                # checking for IPs in a range
+                elif "-" in ips:
+                    destination_set.update(InputHelper._get_ips_from_range(ips))
+                # checking for glob ranges
+                elif "*" in ips:
+                    destination_set.update(InputHelper._get_ips_from_glob(ips))
+                else:
+                    destination_set.add(ips)
 
-        tmp_commands.update(test)
-        return tmp_commands
-        
+    @staticmethod
+    def _replace_variable_with_commands(commands, variable, replacements):
+        def add_task(t, item_list):
+            if t not in set(item_list):
+                item_list.append(t)
+
+        tasks = []
+        for command in commands:
+            for replacement in replacements:
+                if command.name().find(variable) != -1:
+                    new_task = command.clone()
+                    new_task.replace(variable, replacement)
+                    add_task(new_task, tasks)
+                else:
+                    add_task(command, tasks)
+        return tasks
+
     @staticmethod
     def _replace_variable_array(commands, variable, replacement):
-        tmp_commands = set()
-        counter = 0
+        if variable not in sample(commands, 1)[0]:
+            return
 
-        test = list()
-
-        if not variable in sample(commands, 1)[0]:
-            return commands
-
-        for command in commands:
-            test.append(str(command).replace(variable, str(replacement[counter])))
-            counter += 1
-
-        tmp_commands.update(test)
-        return tmp_commands
-
+        for counter, command in enumerate(commands):
+            command.replace(variable, str(replacement[counter]))
 
     @staticmethod
     def process_commands(arguments):
-        commands = set()
+        commands = list()
         ranges = set()
         targets = set()
         exclusions_ranges = set()
         exclusions = set()
-        final_commands = set()
-        output = OutputHelper(arguments)
 
         # removing the trailing slash if any
-        if arguments.output:
-            if arguments.output[-1] == "/":
-                arguments.output = arguments.output[:-1]
+        if arguments.output and arguments.output[-1] == "/":
+            arguments.output = arguments.output[:-1]
 
         if arguments.port:
-            if "," in arguments.port:
-                ports = arguments.port.split(",")
-            elif "-" in arguments.port:
-                tmp_ports = arguments.port.split("-")
-                if int(tmp_ports[0]) >= int(tmp_ports[1]):
-                    raise Exception("Invalid range provided")
-                ports = list(range(int(tmp_ports[0]), int(tmp_ports[1]) + 1))
-            else:
-                ports = [arguments.port]
+            ports = InputHelper._process_port(arguments.port)
 
         if arguments.realport:
-            if "," in arguments.realport:
-                real_ports = arguments.realport.split(",")
-            elif "-" in arguments.realport:
-                tmp_ports = arguments.realport.split("-")
-                if int(tmp_ports[0]) >= int(tmp_ports[1]):
-                    raise Exception("Invalid range provided")
-                real_ports = list(range(int(tmp_ports[0]), int(tmp_ports[1]) + 1))
-            else:
-                real_ports = [arguments.realport]
+            real_ports = InputHelper._process_port(arguments.realport)
 
         # process targets first
         if arguments.target:
             ranges.add(arguments.target)
         else:
-            targetFile = arguments.target_list
+            target_file = arguments.target_list
             if not sys.stdin.isatty():
-                targetFile = sys.stdin
-            for target in targetFile:
-                if target.strip():
-                    ranges.add(target.strip())          
+                target_file = sys.stdin
+            ranges.update([target.strip() for target in target_file if target.strip()])
 
         # process exclusions first
         if arguments.exclusions:
@@ -162,50 +213,13 @@ class InputHelper(object):
         else:
             if arguments.exclusions_list:
                 for exclusion in arguments.exclusions_list:
-                    exclusions_ranges.add(target.strip())
+                    exclusion = exclusion.strip()
+                    if exclusion:
+                        exclusions.add(exclusion)
 
         # removing elements that may have spaces (helpful for easily processing comma notation)
-        for target in ranges:
-            target = target.replace(" ", "")
-
-            for ips in target.split(","):
-
-                # check if it is a domain name
-                if ips.split(".")[-1][0].isalpha():
-                    targets.add(ips)
-                    continue
-                # checking for CIDR
-                if not arguments.nocidr and "/" in ips:
-                    targets.update(InputHelper._get_cidr_to_ips(ips))
-                # checking for IPs in a range 
-                elif "-" in ips:
-                    targets.update(InputHelper._get_ips_from_range(ips))
-                # checking for glob ranges
-                elif "*" in ips:
-                    targets.update(InputHelper._get_ips_from_glob(ips))
-                else:
-                    targets.add(ips)
-
-        # removing elements that may have spaces (helpful for easily processing comma notation)
-        for exclusion in exclusions_ranges:
-            exclusion = exclusion.replace(" ", "")
-
-            for ips in exclusion.split(","):
-                # check if it is a domain name
-                if ips.split(".")[-1][0].isalpha():
-                    targets.add(ips)
-                    continue
-                # checking for CIDR
-                if not arguments.nocidr and "/" in ips:
-                    exclusions.update(InputHelper._get_cidr_to_ips(ips))
-                # checking for IPs in a range 
-                elif "-" in ips:
-                    exclusions.update(InputHelper._get_ips_from_range(ips))
-                # checking for glob ranges
-                elif "*" in ips:
-                    exclusions.update(InputHelper._get_ips_from_glob(ips))
-                else:
-                    exclusions.add(ips)
+        InputHelper._pre_process_hosts(ranges, targets, arguments)
+        InputHelper._pre_process_hosts(exclusions_ranges, exclusions, arguments)
 
         # difference operation
         targets -= exclusions
@@ -218,46 +232,40 @@ class InputHelper(object):
             random_file = choice(files)
 
         if arguments.command:
-            commands.add(arguments.command.rstrip('\n'))
+            commands.append(arguments.command.rstrip('\n'))
         else:
-            for command in arguments.command_list:
-                commands.add(command.rstrip('\n'))
+            commands = InputHelper._pre_process_commands(arguments.command_list, '')
 
-        final_commands = InputHelper._replace_variable_for_commands(commands, "_target_", targets)
-        final_commands = InputHelper._replace_variable_for_commands(final_commands, "_host_", targets)
+        commands = InputHelper._replace_variable_with_commands(commands, "_target_", targets)
+        commands = InputHelper._replace_variable_with_commands(commands, "_host_", targets)
 
         if arguments.port:
-            final_commands = InputHelper._replace_variable_for_commands(final_commands, "_port_", ports)
+            commands = InputHelper._replace_variable_with_commands(commands, "_port_", ports)
 
         if arguments.realport:
-            final_commands = InputHelper._replace_variable_for_commands(final_commands, "_realport_", real_ports)
+            commands = InputHelper._replace_variable_with_commands(commands, "_realport_", real_ports)
         
         if arguments.random:
-            final_commands = InputHelper._replace_variable_for_commands(final_commands, "_random_", [random_file])
+            commands = InputHelper._replace_variable_with_commands(commands, "_random_", [random_file])
 
         if arguments.output:
-            final_commands = InputHelper._replace_variable_for_commands(final_commands, "_output_", [arguments.output])
+            commands = InputHelper._replace_variable_with_commands(commands, "_output_", [arguments.output])
 
         if arguments.proto:
             if "," in arguments.proto:
                 protocols = arguments.proto.split(",")
             else:
                 protocols = arguments.proto
-            final_commands = InputHelper._replace_variable_for_commands(final_commands, "_proto_", protocols)
-        
+            commands = InputHelper._replace_variable_with_commands(commands, "_proto_", protocols)
+
         # process proxies
         if arguments.proxy_list:
-            proxy_list = list()
-            for proxy in arguments.proxy_list:
-                if proxy.strip():
-                    proxy_list.append(proxy.strip())
+            proxy_list = [proxy for proxy in arguments.proxy_list if proxy.strip()]
+            if len(proxy_list) < len(commands):
+                proxy_list = ceil(len(commands) / len(proxy_list)) * proxy_list
 
-            if len(proxy_list) < len(final_commands):
-                proxy_list = ceil(len(final_commands) / len(proxy_list)) * proxy_list
-
-            final_commands = InputHelper._replace_variable_array(final_commands, "_proxy_", proxy_list)
-
-        return final_commands
+            InputHelper._replace_variable_array(commands, "_proxy_", proxy_list)
+        return commands
 
 
 class InputParser(object):

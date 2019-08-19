@@ -1,16 +1,17 @@
 #!/usr/bin/python3
+
 import sys
+
 from Interlace.lib.core.input import InputParser, InputHelper
 from Interlace.lib.core.output import OutputHelper, Level
 from Interlace.lib.threader import Pool
 
 
 def build_queue(arguments, output):
-    queue = list()
-    for command in InputHelper.process_commands(arguments):
-        output.terminal(Level.THREAD, command, "Added to Queue")
-        queue.append(command)
-    return queue
+    task_list = InputHelper.process_commands(arguments)
+    for task in task_list:
+        output.terminal(Level.THREAD, task.name(), "Added to Queue")
+    return task_list
 
 
 def main():

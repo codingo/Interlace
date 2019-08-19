@@ -10,7 +10,7 @@ def dependencies(imported_file):
 
 
 with open("README.md") as file:
-    num_installed = False
+    num_installed = True
     try:
         import numpy
         num_installed = True
@@ -35,7 +35,5 @@ with open("README.md") as file:
             ]
         },
         install_requires=dependencies('requirements.txt'),
-        setup_requires=['pytest-runner',
-                        '' if num_installed else 'numpy==1.16.0'],
         tests_require=dependencies('test-requirements.txt'),
         include_package_data=True)
