@@ -84,7 +84,7 @@ Interlace also makes the use of two additional features for controlling executio
 
 These are run on a per-target level. If there are threads available and a blocker is in the way for the current target, Interlace will start commands from the next target within a target list in order to maximise efficiency.
 
-Threads will still multithread per-target, but using these features can allow you to control the execution flow for those targets more directly to prevent commands from running out of order.
+Using these features will allow you to control the execution flow for individual targets more directly in order to prevent commands from running out of order.
 
 ## Blocker
 Blockers prevent anything below them from executing until all commands above them have completed (for the currently active host). For example, in the following:
