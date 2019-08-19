@@ -10,14 +10,15 @@ Easily turn single threaded command line applications into a fast, multi-threade
 
 # Table of Contents
 - [Setup](#Setup)
-- [Usage](#Usage)
-- [Further information regarding ports](#Further-information-regarding-ports)
-- [Further information regarding targets](#Further-information-regarding-targets)
+- [Usage - Flags](#Usage)
+- [Usage Examples](#Usage-Examples)
+- [Port Notation Explained](#Further-information-regarding-ports)
+- [Target Notation Explained](#Further-information-regarding-targets)
 - [Variable Replacements](#Variable-Replacements)
 - [Advanced Command File Usage](#Advanced-Command-File-Usage)
 - [Advanced Usage: Blocker](#Blocker)
 - [Advanced Usage: Blocks](#Blocks)
-- [Usage Examples](#Usage-Examples)
+
 - [Exclusions](#Exclusions)
 
 # Setup 
