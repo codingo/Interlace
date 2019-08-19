@@ -82,6 +82,8 @@ The following variables will be replaced in commands at runtime:
 # Advanced Command File Usage
 Interlace also makes the use of two additional features for controlling execution flow within a command file: `_blocker_` and `_block:<name>_`. Blockers prevent execution of commands listed after them, until all commands before them have completed, and blocks can be used to force sequential execution of commands stated within a block, for a target.
 
+These are run on a per-target level. If there are threads available and a blocker is in the way for the current target, Interlace will start commands from the next target within a target list in order to maximise efficiency.
+
 Threads will still multithread per-target, but using these features can allow you to control the execution flow for those targets more directly to prevent commands from running out of order.
 
 ## Blocker
