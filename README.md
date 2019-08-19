@@ -18,7 +18,6 @@ Easily turn single threaded command line applications into a fast, multi-threade
 - [Advanced Command File Usage](#Advanced-Command-File-Usage)
 - [Advanced Usage: Blocker](#Blocker)
 - [Advanced Usage: Blocks](#Blocks)
-
 - [Exclusions](#Exclusions)
 
 # Setup 
