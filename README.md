@@ -14,6 +14,7 @@ Easily turn single threaded command line applications into a fast, multi-threade
 - [Further information regarding ports](#Further-information-regarding-ports)
 - [Further information regarding targets](#Further-information-regarding-targets)
 - [Variable Replacements](#Variable-Replacements)
+- [Advanced Command File Usage](#Advanced-Command-File-Usage)
 - [Advanced Usage: Blocker](#Blocker)
 - [Advanced Usage: Blocks](#Blocks)
 - [Usage Examples](#Usage-Examples)
@@ -78,7 +79,7 @@ The following variables will be replaced in commands at runtime:
 | \_proxy\_    | Replaced with the proxy list from interlace |
 | \_random\_   | Replaced with the randomly-chosen file from interlace | 
 
-# Advanced Command File Usage (block and blocker)
+# Advanced Command File Usage
 Interlace also makes the use of two additional features for controlling execution flow within a command file: `_blocker_` and `_block:<name>_`. Blockers prevent execution before them, and blocks can be used to force sequential execution of threads for a target.
 
 Threads will still multithread per-target, but using these features can allow you to control the execution flow for those targets more directly to prevent commands from running out of order.
