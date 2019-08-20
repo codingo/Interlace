@@ -13,4 +13,8 @@ echo _target_/b/
 echo _target_/re/
 _block:file_
 _blocker_
+ping 127.0.0.1 -n 10 > nul
+ping 127.0.0.1 -n 10 > nul && echo "sleepy"
+ping 127.0.0.1 -n 5 > nul && echo "test1"
+_blocker_
 echo "Done"

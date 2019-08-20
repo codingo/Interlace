@@ -9,7 +9,7 @@ class Task(object):
     def __init__(self, command):
         self.task = command
         self.self_lock = None
-        self.sibling_lock = None
+        self.sibling_locks = []
 
     def __cmp__(self, other):
         return self.name() == other.name()
@@ -20,21 +20,22 @@ class Task(object):
     def clone(self):
         new_task = Task(self.task)
         new_task.self_lock = self.self_lock
-        new_task.sibling_lock = self.sibling_lock
+        new_task.sibling_locks = self.sibling_locks
         return new_task
 
     def replace(self, old, new):
         self.task = self.task.replace(old, new)
 
     def run(self, t=False):
-        if self.sibling_lock:
-            self.sibling_lock.wait()
+        for lock in self.sibling_locks:
+            lock.wait()
         self._run_task(t)
         if self.self_lock:
             self.self_lock.set()
 
-    def wait_for(self, _lock):
-        self.sibling_lock = _lock
+    def wait_for(self, siblings):
+        for sibling in siblings:
+            self.sibling_locks.append(sibling.get_lock())
 
     def name(self):
         return self.task
