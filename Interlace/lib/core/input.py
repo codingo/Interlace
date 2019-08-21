@@ -100,7 +100,7 @@ class InputHelper(object):
         """
         task_block = []
         sibling = None
-        global_task = None
+        blocker = None
         for command in command_list:
             command = str(command).strip()
             if not command:
@@ -113,8 +113,10 @@ class InputHelper(object):
                     return task_block
                 # otherwise pre-process all the commands in this new `new_task_name` block
                 tasks = InputHelper._pre_process_commands(command_list, new_task_name, False)
-                for task in tasks:
-                    task_block.append(task)
+                if blocker:
+                    for task in tasks:
+                        task.wait_for(task_block)
+                task_block += tasks
                 if len(tasks) > 0:
                     sibling = tasks[-1]
                 continue
@@ -122,12 +124,12 @@ class InputHelper(object):
                 # if a blocker is encountered, all commands following the blocker must wait until the last
                 # command in the block is executed. All block commands are synchronous
                 if command == '_blocker_':
-                    global_task = sibling
+                    blocker = sibling
                     continue
                 task = Task(command)
                 # if we're in the global scope and there was a previous _blocker_ encountered, we wait for the last
                 # child of the block
-                if is_global_task and global_task:
+                if is_global_task and blocker:
                     task.wait_for(task_block)
                 # all but the first command in a block scope wait for its predecessor
                 elif sibling and not is_global_task:
