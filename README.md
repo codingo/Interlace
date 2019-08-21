@@ -3,8 +3,26 @@ Easily turn single threaded command line applications into a fast, multi-threade
 
 [![Python 3.2|3.6](https://img.shields.io/badge/python-3.2|3.6-green.svg)](https://www.python.org/) [![License](https://img.shields.io/badge/license-GPL3-_red.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html) [![Twitter](https://img.shields.io/badge/twitter-@codingo__-blue.svg)](https://twitter.com/codingo_) [![Twitter](https://img.shields.io/badge/twitter-@sml555__-blue.svg)](https://twitter.com/sml555_)
 
+
+
 # Reviews / Howto Guides
 [Interlace: A Tool to Easily Automate and Multithread Your Pentesting & Bug Bounty Workflow Without Any Coding](https://medium.com/@hakluke/interlace-a-productivity-tool-for-pentesters-and-bug-hunters-automate-and-multithread-your-d18c81371d3d)
+
+# Table of Contents
+- [Setup](#Setup)
+- [Usage - Flags](#Usage)
+- [Usage Examples](#Usage-Examples)
+- [Port Notation Explained](#Further-information-regarding-ports)
+- [Target Notation Explained](#Further-information-regarding-targets)
+- [Threading support for an Application that doesn't support it](#glob-notation-with-an-application-that-doesnt-support-it)
+- [CIDR Notation for an Application that doesn't support it](#cidr-notation-with-an-application-that-doesnt-support-it)
+- [GLOB Notation for an Application that doesn't support it](#glob-notation-with-an-application-that-doesnt-support-it)
+- [Multiple Proxy support for an Application that doesn't support it](#run-nikto-using-multiple-proxies)
+- [Variable Replacements](#Variable-Replacements)
+- [Advanced Command File Usage](#Advanced-Command-File-Usage)
+- [Advanced Usage: Blocker](#Blocker)
+- [Advanced Usage: Blocks](#Blocks)
+- [Exclusions](#Exclusions)
 
 # Setup 
 Install using:
@@ -39,7 +57,7 @@ Dependencies will then be installed and Interlace will be added to your path as 
 | --silent   | If set then only important information will be displayed and banners and other information will be redacted  |
 | -v         | If set then verbose output will be displayed in the terminal                                                 |
 
-## Further information regarding ports (-p)
+## Further information regarding ports
 
 | Example | Notation Type                                            |
 |---------|----------------------------------------------------------|
@@ -47,7 +65,7 @@ Dependencies will then be installed and Interlace will be added to your path as 
 | 1-80    | Dash notation, perform a command for each port from 1-80 |
 | 80,443  | Perform a command for both port 80, and port 443         |
 
-## Further information regarding targets (-t or -tL)
+## Further information regarding targets
 Both `-t` and `-tL` will be processed the same. You can pass targets the same as you would when using nmap. This can be done using CIDR notation, dash notation, or a comma-delimited list of targets. A single target list file can also use different notation types per line.
 
 Alternatively, you can pass targets in via stdin and neither -t or -tL will be required.
@@ -64,6 +82,36 @@ The following variables will be replaced in commands at runtime:
 | \_realport\_ | Replaced with the real port variable from interlace                  |
 | \_proxy\_    | Replaced with the proxy list from interlace |
 | \_random\_   | Replaced with the randomly-chosen file from interlace | 
+
+# Advanced Command File Usage
+Interlace also makes the use of two additional features for controlling execution flow within a command file: `_blocker_` and `_block:<name>_`. Blockers prevent execution of commands listed after them, until all commands before them have completed, and blocks can be used to force sequential execution of commands stated within a block, for a target.
+
+These are run on a per-target level. If there are threads available and a blocker is in the way for the current target, Interlace will start commands from the next target within a target list in order to maximise efficiency.
+
+Using these features will allow you to control the execution flow for individual targets more directly in order to prevent commands from running out of order.
+
+## Blocker
+Blockers prevent anything below them from executing until all commands above them have completed (for the currently active host). For example, in the following:
+
+```
+mkdir -p _output_/_target_/scans/
+_blocker_
+nmap _target_ -oA _output_/_target_/scans/_target_-nmap
+```
+
+The use of a blocker here prevents nmap from running on a target before the base folder structure has been created, preventing nmap from throwing an exception.
+
+## Blocks
+Blocks force everything within them to run sequentially. You can also use multiple blocks per command file. For example, in the following:
+
+```
+_block:nmap_
+mkdir -p _target_/output/scans/
+nmap _target_ -oN _target_/output/scans/_target_-nmap
+_block:nmap_
+nikto --host _target_
+```
+In this example, the block would run the same as before, but assuming the thread count is high enough then nikto would begin to run immediately, passing results back to the terminal (whilst nmap and file creation happened in the background).
 
 # Usage Examples
 ## Run Nikto Over Multiple Sites
@@ -174,8 +222,6 @@ Using the above example, let's assume you want independent scans to be via diffe
 ```
 ➜  /tmp interlace -tL ./targets.txt -pL ./proxies.txt -threads 5 -c "nikto --host _target_:_port_ -useproxy _proxy_ > ./_target_-_port_-nikto.txt" -p 80,443 -v
 ```
-
-
 
 # Authors and Thanks
 Originally written by Michael Skelton ([codingo](https://twitter.com/codingo_)) and Sajeeb Lohani ([sml555](https://twitter.com/sml555_)) with help from Charelle Collett ([@Charcol0x89](https://twitter.com/Charcol0x89)) for threading refactoring and overall approach, and Luke Stephens ([hakluke](https://twitter.com/hakluke)) for testing and approach.
