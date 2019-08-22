@@ -236,7 +236,7 @@ class InputHelper(object):
             random_file = choice(files)
 
         if arguments.command:
-            commands.append(arguments.command.rstrip('\n'))
+            commands.append(Task(arguments.command.rstrip('\n')))
         else:
             commands = InputHelper._pre_process_commands(arguments.command_list, '')
 
