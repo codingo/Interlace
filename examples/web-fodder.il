@@ -4,5 +4,6 @@ mkdir _output_/_target_/exploit
 mkdir _output_/_target_/loot
 touch _output_/_target_/notes.txt
 _block:file-creation_
+_blocker_
 nikto --host _target_ | tee _output_/_target_/scans/nikto-_target_.txt
 sslscan _target_ | tee _output_/_target_/scans/sslscan-_target_.txt
