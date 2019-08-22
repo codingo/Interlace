@@ -91,10 +91,10 @@ class InputHelper(object):
         return [port_type]
 
     @staticmethod
-    def _pre_process_commands(command_list, task_name, is_global_task=True):
+    def _pre_process_commands(command_list, task_name=None, is_global_task=True):
         """
         :param command_list:
-        :param task_name: all tasks have 'scope' and all scopes have unique names, global scope defaults ''
+        :param task_name: all tasks have 'scope' and all scopes have unique names, global scope defaults None
         :param is_global_task: when True, signifies that all global tasks are meant to be run concurrently
         :return: list of possibly re-adjusted commands
         """
@@ -103,13 +103,16 @@ class InputHelper(object):
         blocker = None
         for command in command_list:
             command = str(command).strip()
-            if not command:
+            if len(command) == 0:
                 continue
             # the start or end of a command block
-            if command.startswith('_block:') and command.endswith('_'):
-                new_task_name = command.split('_block:')[1][:-1].strip()
+            if (command.startswith('_block:') and command.endswith('_')) or\
+                    command == '_block_':
                 # if this is the end of a block, then we're done
-                if task_name == new_task_name:
+                new_task_name = ''
+                if command.startswith('_block:'):
+                    new_task_name = command.split('_block:')[1][:-1].strip()
+                if task_name and task_name == new_task_name:
                     return task_block
                 # otherwise pre-process all the commands in this new `new_task_name` block
                 tasks = InputHelper._pre_process_commands(command_list, new_task_name, False)
@@ -238,7 +241,7 @@ class InputHelper(object):
         if arguments.command:
             commands.append(arguments.command.rstrip('\n'))
         else:
-            commands = InputHelper._pre_process_commands(arguments.command_list, '')
+            commands = InputHelper._pre_process_commands(arguments.command_list)
 
         commands = InputHelper._replace_variable_with_commands(commands, "_target_", targets)
         commands = InputHelper._replace_variable_with_commands(commands, "_host_", targets)
