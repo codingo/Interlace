@@ -163,6 +163,33 @@ class InputHelper(object):
                     destination_set.add(ips)
 
     @staticmethod
+    def _process_clean_targets(commands, dirty_targets):
+        def add_task(t, item_list):
+            if t not in set(item_list):
+                item_list.append(t)
+
+        variable = '_cleantarget_'
+        tasks = []
+
+        for command in commands:
+            for dirty_target in dirty_targets:
+                if command.name().find(variable) != -1:
+                    # replace all https:// or https:// with nothing
+                    dirty_target = dirty_target.replace('http://', '')
+                    dirty_target = dirty_target.replace('https://', '')
+                    # chop off all trailing '/', if any.
+                    while dirty_target.endswith('/'):
+                        dirty_target = dirty_target.strip('/')
+                    # replace all remaining '/' with '-' and that's enough cleanup for the day
+                    clean_target = dirty_target.replace('/', '-')
+                    new_task = command.clone()
+                    new_task.replace(variable, clean_target)
+                    add_task(new_task, tasks)
+                else:
+                    add_task(command, tasks)
+        return tasks
+
+    @staticmethod
     def _replace_variable_with_commands(commands, variable, replacements):
         def add_task(t, item_list):
             if t not in set(item_list):
@@ -245,6 +272,7 @@ class InputHelper(object):
 
         commands = InputHelper._replace_variable_with_commands(commands, "_target_", targets)
         commands = InputHelper._replace_variable_with_commands(commands, "_host_", targets)
+        commands = InputHelper._process_clean_targets(commands, targets)
 
         if arguments.port:
             commands = InputHelper._replace_variable_with_commands(commands, "_port_", ports)
