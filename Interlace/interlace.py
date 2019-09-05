@@ -11,6 +11,7 @@ def build_queue(arguments, output):
     task_list = InputHelper.process_commands(arguments)
     for task in task_list:
         output.terminal(Level.THREAD, task.name(), "Added to Queue")
+    print('Generated {} commands in total'.format(len(task_list)))
     return task_list
 
 
