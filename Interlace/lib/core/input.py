@@ -145,13 +145,12 @@ class InputHelper(object):
     def _pre_process_hosts(host_ranges, destination_set, arguments):
         for host in host_ranges:
             host = host.replace(" ", "")
+            # check if it is a domain name
+            if host.split(".")[0][0].isalpha():
+                destination_set.add(host)
+                continue
             for ips in host.split(","):
-                # check if it is a domain name
-                if ips.split(".")[0][0].isalpha():
-                    destination_set.add(ips)
-                    continue
                 # checking for CIDR
-
                 if not arguments.nocidr and "/" in ips:
                     destination_set.update(InputHelper._get_cidr_to_ips(ips))
                 # checking for IPs in a range
