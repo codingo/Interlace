@@ -147,10 +147,11 @@ class InputHelper(object):
             host = host.replace(" ", "")
             for ips in host.split(","):
                 # check if it is a domain name
-                if ips.split(".")[-1][0].isalpha():
+                if ips.split(".")[0][0].isalpha():
                     destination_set.add(ips)
                     continue
                 # checking for CIDR
+
                 if not arguments.nocidr and "/" in ips:
                     destination_set.update(InputHelper._get_cidr_to_ips(ips))
                 # checking for IPs in a range
