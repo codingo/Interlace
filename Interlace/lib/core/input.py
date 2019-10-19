@@ -151,8 +151,12 @@ class InputHelper(object):
                     destination_set.add(ips)
                     continue
                 # checking for CIDR
+
                 if not arguments.nocidr and "/" in ips:
-                    destination_set.update(InputHelper._get_cidr_to_ips(ips))
+                    if len(ips.split("/")) == 2 and ip.split("/")[1].replace("\n", "").isdigit():
+                        destination_set.update(InputHelper._get_cidr_to_ips(ips))
+                    else:
+                        destination_set.add(ips)
                 # checking for IPs in a range
                 elif "-" in ips:
                     destination_set.update(InputHelper._get_ips_from_range(ips))
