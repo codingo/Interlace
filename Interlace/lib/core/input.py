@@ -144,9 +144,9 @@ class InputHelper(object):
     @staticmethod
     def _pre_process_hosts(host_ranges, destination_set, arguments):
         for host in host_ranges:
-            host = host.replace(" ", "")
+            host = host.replace(" ", "").replace("\n", "")
             # check if it is a domain name
-            if host.split(".")[0][0].isalpha():
+            if host.split(".")[0][0].isalpha() or host.split(".")[-1][-1].isalpha():
                 destination_set.add(host)
                 continue
             for ips in host.split(","):
