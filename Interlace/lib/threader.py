@@ -49,7 +49,9 @@ class Task(object):
     def _run_task(self, t=False):
         if t:
             s = subprocess.Popen(self.task, shell=True, stdout=subprocess.PIPE)
-            t.write(s.stdout.readline().decode("utf-8"))
+            out = s.stdout.readline().decode("utf-8")
+            if out != "":
+                t.write(out)
         else:
             subprocess.Popen(self.task, shell=True)
 
