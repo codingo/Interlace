@@ -172,9 +172,14 @@ class InputHelper(object):
         variable = '_cleantarget_'
         tasks = []
         temp = set()  # this helps avoid command duplication and re/deconstructing of temporary set
-        for command in commands:
-            for dirty_target in dirty_targets:
+        # changed order to ensure different combinations of commands aren't created
+        for dirty_target in dirty_targets:
+            for command in commands:
                 if command.name().find(variable) != -1:
+                    new_task = command.clone()
+
+                    new_task.replace("_target_", dirty_target)
+
                     # replace all https:// or https:// with nothing
                     dirty_target = dirty_target.replace('http://', '')
                     dirty_target = dirty_target.replace('https://', '')
@@ -183,11 +188,12 @@ class InputHelper(object):
                         dirty_target = dirty_target.strip('/')
                     # replace all remaining '/' with '-' and that's enough cleanup for the day
                     clean_target = dirty_target.replace('/', '-')
-                    new_task = command.clone()
                     new_task.replace(variable, clean_target)
                     add_task(new_task, tasks, temp)
                 else:
+                    command.replace("_target_", dirty_target)
                     add_task(command, tasks, temp)
+
         return tasks
 
     @staticmethod
@@ -273,9 +279,9 @@ class InputHelper(object):
         else:
             commands = InputHelper._pre_process_commands(arguments.command_list)
 
-        commands = InputHelper._replace_variable_with_commands(commands, "_target_", targets)
-        commands = InputHelper._replace_variable_with_commands(commands, "_host_", targets)
+        # commands = InputHelper._replace_variable_with_commands(commands, "_target_", targets)
         commands = InputHelper._process_clean_targets(commands, targets)
+        commands = InputHelper._replace_variable_with_commands(commands, "_host_", targets)
 
         if arguments.port:
             commands = InputHelper._replace_variable_with_commands(commands, "_port_", ports)
