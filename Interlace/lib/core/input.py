@@ -191,7 +191,6 @@ class InputHelper(object):
                     add_task(new_task, tasks, temp)
                 else:
                     new_task.replace("_target_", dirty_target)
-                    print(dirty_target)
                     add_task(new_task, tasks, temp)
 
         return tasks
