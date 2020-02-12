@@ -175,9 +175,8 @@ class InputHelper(object):
         # changed order to ensure different combinations of commands aren't created
         for dirty_target in dirty_targets:
             for command in commands:
+                new_task = command.clone()
                 if command.name().find(variable) != -1:
-                    new_task = command.clone()
-
                     new_task.replace("_target_", dirty_target)
 
                     # replace all https:// or https:// with nothing
@@ -191,8 +190,8 @@ class InputHelper(object):
                     new_task.replace(variable, clean_target)
                     add_task(new_task, tasks, temp)
                 else:
-                    command.replace("_target_", dirty_target)
-                    add_task(command, tasks, temp)
+                    new_task.replace("_target_", dirty_target)
+                    add_task(new_task, tasks, temp)
 
         return tasks
 
