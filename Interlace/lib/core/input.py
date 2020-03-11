@@ -19,9 +19,12 @@ class InputHelper(object):
 
     @staticmethod
     def check_positive(parser, arg):
-        ivalue = int(arg)
-        if ivalue <= 0:
-            raise parser.ArgumentTypeError("%s is not a valid positive integer!" % arg)
+        try:
+            ivalue = int(arg)
+            if ivalue <= 0:
+                raise parser.ArgumentTypeError("%s is not a valid positive integer!" % arg)
+        except ValueError as e:
+            raise parser.ArgumentValueError("%s is not a a number!" % arg)
 
         return arg
 
