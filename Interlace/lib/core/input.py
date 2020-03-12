@@ -438,6 +438,11 @@ class InputParser(object):
             help='If set then progress bar will be stripped out'
         )
 
+        parser.add_argument(
+            '--repeat', dest='repeat',
+            help='repeat the given command x number of times.'
+        )
+        
         output_types = parser.add_mutually_exclusive_group()
         output_types.add_argument(
             '-v', '--verbose', dest='verbose', action='store_true', default=False,
