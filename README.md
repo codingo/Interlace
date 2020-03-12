@@ -39,14 +39,14 @@ Dependencies will then be installed and Interlace will be added to your path as 
 | (stdin)    | Pipe target lists from another application in comma-delimited format, CIDR notation, or as an individual host|
 | -t         | Specify a target or domain name either in comma-delimited format, CIDR notation, or as an individual host    |
 | -tL        | Specify a list of targets or domain names                                                                    |
-| -e         | Specify a target exclusion either in comma-delimited format, CIDR notation, or as an individual host         |
+| -e         | Specify a list of targets to exclude either in comma-delimited format, CIDR notation, or as an individual host         |
 | -eL        | Specify a list of targets to exclude                                                                         |
 | -threads   | Specify the maximum number of threads to run at any one time (DEFAULT:5)                                     |
 | -timeout   | Specify a timeout value in seconds for any single thread (DEFAULT:600)                                       |
 | -c         | Specify a single command to execute over each target or domain                                               |
 | -cL        | Specify a list of commands to execute over each target or domain                                             |
 | -o         | Specify an output folder variable that can be used in commands as \_output\_                                 |
-| -p         | Specify a list of port variable that can be used in commands as \_port\_. This can be a single port, a comma delimited list, or use dash notation |
+| -p         | Specify a list of port variable that can be used in commands as \_port\_. This can be a single port, a comma-delimited list, or a range using dash notation |
 | -pL        | Specify a list of proxies                                                                                    |
 | --proto    | Specify protocols that can be used in commands as \_proto\_                                                  |
 | -rp        | Specify a real port variable that can be used in commands as \_realport\_                                    |
@@ -68,7 +68,7 @@ Dependencies will then be installed and Interlace will be added to your path as 
 ## Further information regarding targets
 Both `-t` and `-tL` will be processed the same. You can pass targets the same as you would when using nmap. This can be done using CIDR notation, dash notation, or a comma-delimited list of targets. A single target list file can also use different notation types per line.
 
-Alternatively, you can pass targets in via stdin and neither -t or -tL will be required.
+Alternatively, you can pass targets in via STDIN and neither -t or -tL will be required.
 
 # Variable Replacements
 The following variables will be replaced in commands at runtime:
@@ -76,15 +76,15 @@ The following variables will be replaced in commands at runtime:
 | Variable  | Replacement                                                             |
 |-----------|-------------------------------------------------------------------------|
 | \_target\_  | Replaced with the expanded target list that the current thread is running against  |
-| \_host\_ | Works the same as \_target\_, can be used interchangeably |
-| \_output\_   | Replaced with the output folder variable from interlace              |
-| \_port\_     | Replaced with the expanded port variable from interlace                       |
-| \_realport\_ | Replaced with the real port variable from interlace                  |
-| \_proxy\_    | Replaced with the proxy list from interlace |
-| \_random\_   | Replaced with the randomly-chosen file from interlace | 
+| \_host\_ | Works the same as \_target\_, and can be used interchangeably |
+| \_output\_   | Replaced with the output folder variable from Interlace              |
+| \_port\_     | Replaced with the expanded port variable from Interlace                       |
+| \_realport\_ | Replaced with the real port variable from Interlace                  |
+| \_proxy\_    | Replaced with the proxy list from Interlace |
+| \_random\_   | Replaced with the randomly chosen file from Interlace | 
 
 # Advanced Command File Usage
-Interlace also makes the use of two additional features for controlling execution flow within a command file: `_blocker_` and `_block:<name>_`. Blockers prevent execution of commands listed after them, until all commands before them have completed, and blocks can be used to force sequential execution of commands stated within a block, for a target.
+Interlace also makes the use of two additional features for controlling execution flow within a command file: `_blocker_` and `_block:<name>_`. Blockers prevent execution of commands listed after them, until all commands before them have completed, and blocks can be used to force sequential execution of commands listed within a block, for a target.
 
 These are run on a per-target level. If there are threads available and a blocker is in the way for the current target, Interlace will start commands from the next target within a target list in order to maximise efficiency.
 
@@ -121,7 +121,7 @@ Let's assume that you have a file `targets.txt`  that has the following contents
 bugcrowd.com
 hackerone.com
 ```
-You could use interlace to run over any number of targets within this file using:
+You could use Interlace to run over any number of targets within this file using:
 bash
 ```
 ➜  /tmp interlace -tL ./targets.txt -threads 5 -c "nikto --host _target_ > ./_target_-nikto.txt" -v
@@ -133,7 +133,7 @@ Interlace v1.0	by Michael Skelton (@codingo_) & Sajeeb Lohani (@sml555_)
 ```
 This would run Nikto over each host and save to a file for each target. Note that in the above example since we're using the `>` operator, the results won't be fed back to the terminal; however this is desired functionality as otherwise we wouldn't be able to attribute which target Nikto results were returning for.
 
-For applications where you desire feedback simply pass commands as you normally would (or use `tee`).
+For applications where you desire feedback, simply pass commands as you normally would (or use `tee`).
 
 ## Run Nikto Over Multiple Sites and Ports
 Using the above example, let's assume you want independent scans to be run for both ports `80` and `443` for the same targets. You would then use the following:
@@ -149,18 +149,18 @@ Interlace v1.0	by Michael Skelton (@codingo_) & Sajeeb Lohani (@sml555_)
 [14:33:23] [THREAD] [nikto --host hackerone.com:443 > ./hackerone.com-nikto.txt] Added to Queue 
 ```
 ## Run a List of Commands against Target Hosts
-Often with penetration tests there's a list of commands you want to run on nearly every job. Assuming that list includes testssl.sh, nikto, and sslscan, you could save a command list with the following in a file called `commands.txt`:
+Often with penetration tests, there's a list of commands you want to run on nearly every job. Assuming that list includes testssl.sh, nikto, and sslscan, you could save a command list with the following in a file called `commands.txt`:
 
 ```
 nikto --host _target_:_port_ > _output_/_target_-nikto.txt
 sslscan _target_:_port_ >  _output_/_target_-sslscan.txt
 testssl.sh _target_:_port_ > _output_/_target_-testssl.txt
 ```
-If you were then given a target, `example.com` you could run each of these commands against this target using the following:
+If you were then given a target `example.com`, you could run each of these commands against this target using the following:
 ```bash
 interlace -t example.com -o ~/Engagements/example/ -cL ./commands.txt -p 80,443
 ```
-This would then run nikto, sslscan, and testssl.sh for both port 80 and 443 against example.com and save files into your engagements folder.
+This would then run nikto, sslscan, and testssl.sh for both port 80 and 443 against example.com and save the files into your engagements folder.
 
 ## CIDR notation with an application that doesn't support it
 Interlace automatically expands CIDR notation when starting threads (unless the `--no-cidr` flag is passed). This allows you to pass CIDR notation to a variety of applications:
@@ -169,7 +169,7 @@ To run a virtual host scan against every target within `192.168.12.0/24` using a
 ```bash
 interlace -t 192.168.12.0/24 -c "vhostscan _target_ -oN _output_/_target_-vhosts.txt" -o ~/scans/ -threads 50
 ```
-This is despite VHostScan not having any inbuilt CIDR notation support. Since Interlace expands the notation before building a queue of threads, VHostScan for all intents is only receiving a list of direct IP addresses to scan.
+This is despite VHostScan not having any in-built CIDR notation support. Since Interlace expands the notation before building a queue of threads, VHostScan for all intents is only receiving a list of direct IP addresses to scan.
 
 ## Glob notation with an application that doesn't support it
 Interlace automatically expands glob ranges when starting threads. This allows you to pass glob ranges to a variety of applications:
@@ -198,7 +198,7 @@ This could be done using a direct command:
 interlace -tL ./target-list.txt -c "vhostscan -t _target_ -oN _output_/_target_-vhosts.txt" -o ~/scans/ -threads 50
 ```
 
-Or, alternatively, to run the same command as above, but using a command file, this would be done using:
+Or, alternatively, to run the same command as above, but using a command file:
 ```bash
 interlace -cL ./vhosts-commands.txt -tL ./target-list.txt -threads 50 -o ~/scans
 ```
@@ -209,9 +209,9 @@ vhostscan -t $target -oN _output_/_target_-vhosts.txt
 This would output a file for each target in the specified output folder. You could also run multiple commands simply by adding them into the command file.
 
 ## Exclusions
-Interlace automatically excludes any hosts provided when specified via the `-e` or `-eL` arguments. These arguments are also compatible with the above-mentinoed range notations (CIDR, Glob, and dash)
+Interlace automatically excludes any hosts provided when specified via the `-e` or `-eL` arguments. These arguments are also compatible with the range notations mentioned above (CIDR, glob, and dash)
 
-To run a virtual host scan against every target within `192.168.12.0/24` despire targets within `192.168.12.0/26` using a direct command you could use:
+To run a virtual host scan against every target in the CIDR range `192.168.12.0/24` but not for the targets in the range `192.168.12.0/26`, using a direct command, you could use:
 ```bash
 interlace -t 192.168.12.0/24 -e 192.168.12.0/26 -c "vhostscan _target_ -oN _output_/_target_-vhosts.txt" -o ~/scans/ -threads 50
 ```
@@ -227,5 +227,5 @@ Using the above example, let's assume you want independent scans to be via diffe
 Originally written by Michael Skelton ([codingo](https://twitter.com/codingo_)) and Sajeeb Lohani ([sml555](https://twitter.com/sml555_)) with help from Charelle Collett ([@Charcol0x89](https://twitter.com/Charcol0x89)) for threading refactoring and overall approach, and Luke Stephens ([hakluke](https://twitter.com/hakluke)) for testing and approach.
 
 # Contributions
-Contributions to this project are very welcome. If you're a newcomer to open source and would like some help in doing so, feel free to reach out to us on twitter ([@codingo_](https://twitter.com/codingo_)) / ([@sml555_](https://twitter.com/sml555_)) and we'll assist wherever we can.
+Contributions to this project are very welcome. If you're a newcomer to open source and would like some help in doing so, feel free to reach out to us on Twitter ([@codingo_](https://twitter.com/codingo_)) / ([@sml555_](https://twitter.com/sml555_)) and we'll assist wherever we can.
 
