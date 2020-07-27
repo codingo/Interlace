@@ -21,7 +21,7 @@ class InputHelper(object):
     def readable_file(parser, arg):
         if InputHelper.check_path(parser, arg):
             return open(arg, 'r')  # return an open file handle
-            
+
     @staticmethod
     def check_positive(parser, arg):
         try:
@@ -211,7 +211,7 @@ class InputHelper(object):
             for replacement in replacements:
                 if command.name().find(variable) != -1:
                     new_task = command.clone()
-                    new_task.replace(variable, replacement)
+                    new_task.replace(variable, str(replacement))
                     add_task(new_task, tasks, temp_set)
                 else:
                     add_task(command, tasks, temp_set)
