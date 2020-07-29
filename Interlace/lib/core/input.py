@@ -149,6 +149,10 @@ class InputHelper(object):
         for host in host_ranges:
             host = host.replace(" ", "").replace("\n", "")
             # check if it is a domain name
+            if len(host.split(".")[0]) == 0:
+                destination_set.add(host)
+                continue
+
             if host.split(".")[0][0].isalpha() or host.split(".")[-1][-1].isalpha():
                 destination_set.add(host)
                 continue
