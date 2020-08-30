@@ -1,5 +1,5 @@
 import os.path
-import sys
+from sys import stdin
 from argparse import ArgumentParser
 from math import ceil
 from random import sample, choice
@@ -253,8 +253,8 @@ class InputHelper(object):
         else:
             target_file = arguments.target_list
             if not os.path.exists(target_file):
-                if not sys.stdin.isatty():
-                    target_file = sys.stdin
+                if not stdin.isatty():
+                    target_file = stdin
             ranges.update([target.strip() for target in target_file if target.strip()])
 
         # process exclusions first
@@ -332,7 +332,7 @@ class InputParser(object):
 
         #Is stdin attached?
         requireTargetArg = True
-        if not sys.stdin.isatty():
+        if not stdin.isatty():
             requireTargetArg = False
 
         targets = parser.add_mutually_exclusive_group(required=requireTargetArg)
