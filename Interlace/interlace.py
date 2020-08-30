@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import sys
+from sys import argv
 
 from Interlace.lib.core.input import InputParser, InputHelper
 from Interlace.lib.core.output import OutputHelper, Level
@@ -18,7 +18,7 @@ def build_queue(arguments, output, repeat):
 
 def main():
     parser = InputParser()
-    arguments = parser.parse(sys.argv[1:])
+    arguments = parser.parse(argv[1:])
     output = OutputHelper(arguments)
 
     output.print_banner()
