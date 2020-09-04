@@ -1,5 +1,6 @@
 import os.path
 import sys
+from io import TextIOWrapper
 from argparse import ArgumentParser
 from math import ceil
 from random import sample, choice
@@ -252,7 +253,7 @@ class InputHelper(object):
             ranges.add(arguments.target)
         else:
             target_file = arguments.target_list
-            if not os.path.exists(target_file):
+            if not isinstance(target_file, TextIOWrapper):            
                 if not sys.stdin.isatty():
                     target_file = sys.stdin
             ranges.update([target.strip() for target in target_file if target.strip()])
