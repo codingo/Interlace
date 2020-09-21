@@ -4,7 +4,8 @@ from io import TextIOWrapper
 from argparse import ArgumentParser
 from math import ceil
 from random import sample, choice
-
+import socket
+import struct
 from netaddr import IPNetwork, IPRange, IPGlob
 
 from Interlace.lib.threader import Task
@@ -74,11 +75,11 @@ class InputHelper(object):
 
     @staticmethod
     def _get_cidr_to_ips(cidr_range):
-        ips = set()
-
-        for ip in IPNetwork(cidr_range):
-            ips.add(str(ip))
-
+        (ip, cidr) = cidr_range.split("/")
+        mask = 32 - int(cidr)
+        first_ip = struct.unpack(">I", socket.inet_aton(ip))[0]
+        last_ip = first_ip | ((1 << mask) - 1)
+        ips = frozenset([socket.inet_ntoa(struct.pack('>I', x)) for x in range(first_ip, last_ip)])
         return ips
 
     @staticmethod
