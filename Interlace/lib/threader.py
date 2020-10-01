@@ -66,17 +66,17 @@ class Worker(object):
         self.tqdm = tqdm
 
     def __call__(self):
+        queue = self.queue
         while True:
             try:
-                # get task from queue
-                task = next(self.queue)
+                task = next(queue)
                 if isinstance(self.tqdm, tqdm):
                     self.tqdm.update(1)
                     # run task
                     task.run(self.tqdm)
                 else:
                     task.run()
-            except IndexError:
+            except StopIteration:
                 break
 
 
