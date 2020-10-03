@@ -1,11 +1,16 @@
+import functools
+import itertools
 import os.path
 import sys
 from io import TextIOWrapper
 from argparse import ArgumentParser
-from math import ceil
-from random import sample, choice
+from random import choice
 
-from netaddr import IPNetwork, IPRange, IPGlob
+from netaddr import (
+    IPRange,
+    IPSet,
+    glob_to_iprange,
+)
 
 from Interlace.lib.threader import Task
 
@@ -44,42 +49,6 @@ class InputHelper(object):
                 files.append(location)
 
         return files
-
-    @staticmethod
-    def _get_ips_from_range(ip_range):
-        ips = set()
-        ip_range = ip_range.split("-")
-
-        # parsing the above structure into an array and then making into an IP address with the end value
-        end_ip = ".".join(ip_range[0].split(".")[0:-1]) + "." + ip_range[1]
-
-        # creating an IPRange object to get all IPs in between
-        range_obj = IPRange(ip_range[0], end_ip)
-
-        for ip in range_obj:
-            ips.add(str(ip))
-
-        return ips
-
-    @staticmethod
-    def _get_ips_from_glob(glob_ips):
-        ip_glob = IPGlob(glob_ips)
-
-        ips = set()
-
-        for ip in ip_glob:
-            ips.add(str(ip))
-
-        return ips
-
-    @staticmethod
-    def _get_cidr_to_ips(cidr_range):
-        ips = set()
-
-        for ip in IPNetwork(cidr_range):
-            ips.add(str(ip))
-
-        return ips
 
     @staticmethod
     def _process_port(port_type):
@@ -146,178 +115,256 @@ class InputHelper(object):
         return task_block
 
     @staticmethod
-    def _pre_process_hosts(host_ranges, destination_set, arguments):
-        for host in host_ranges:
-            host = host.replace(" ", "").replace("\n", "")
-            # check if it is a domain name
-            if len(host.split(".")[0]) == 0:
-                destination_set.add(host)
-                continue
+    def _replace_target_variables_in_commands(tasks, str_targets, ipset_targets):
+        TARGET_VAR = "_target_"
+        HOST_VAR = "_host_"
+        CLEANTARGET_VAR = "_cleantarget_"
+        for task in tasks:
+            command = task.name()
+            if TARGET_VAR in command or HOST_VAR in command:
+                for dirty_target in itertools.chain(str_targets, ipset_targets):
+                    yielded_task = task.clone()
+                    dirty_target = str(dirty_target)
+                    yielded_task.replace(TARGET_VAR, dirty_target)
+                    yielded_task.replace(HOST_VAR, dirty_target)
+                    yielded_task.replace(
+                        CLEANTARGET_VAR,
+                        dirty_target.replace("http://", "").replace(
+                            "https://", "").rstrip("/").replace("/", "-"),
+                    )
+                    yield yielded_task
+            else:
+                yield task
 
-            if host.split(".")[0][0].isalpha() or host.split(".")[-1][-1].isalpha():
-                destination_set.add(host)
-                continue
-            for ips in host.split(","):
-                # checking for CIDR
-                if not arguments.nocidr and "/" in ips:
-                    destination_set.update(InputHelper._get_cidr_to_ips(ips))
-                # checking for IPs in a range
-                elif "-" in ips:
-                    destination_set.update(InputHelper._get_ips_from_range(ips))
-                # checking for glob ranges
-                elif "*" in ips:
-                    destination_set.update(InputHelper._get_ips_from_glob(ips))
+    @staticmethod
+    def _replace_variable_in_commands(tasks_generator_func, variable, replacements):
+        for task in tasks_generator_func():
+            if variable in task.name():
+                for replacement in replacements:
+                    yielded_task = task.clone()
+                    yielded_task.replace(variable, str(replacement))
+                    yield yielded_task
+            else:
+                yield task
+
+    @staticmethod
+    def _replace_variable_array(
+        tasks_generator_func, variable, replacements_iterator
+    ):
+        for task in tasks_generator_func():
+            task.replace(variable, str(next(replacements_iterator)))
+            yield task
+
+    @staticmethod
+    def _process_targets(arguments):
+        def pre_process_target_spec(target_spec):
+            target_spec = "".join(
+                filter(lambda char: char not in (" ", "\n"), target_spec)
+            )
+            return target_spec.split(",")
+            # If ","s not in target_spec, this returns [target_spec], so this
+            # static method always returns a list
+
+        if arguments.target:
+            target_specs = pre_process_target_spec(arguments.target)
+        else:
+            target_specs_file = arguments.target_list
+            if not isinstance(target_specs_file, TextIOWrapper):
+                if not sys.stdin.isatty():
+                    target_specs_file = sys.stdin
+            target_specs = (
+                target_spec.strip() for target_spec in target_specs_file
+            )
+            target_specs = (
+                pre_process_target_spec(target_spec) for target_spec in
+                target_specs if target_spec
+            )
+            target_specs = itertools.chain(*target_specs)
+
+        def parse_and_group_target_specs(target_specs, nocidr):
+            str_targets = set()
+            ipset_targets = IPSet()
+            for target_spec in target_specs:
+                if (
+                    target_spec.startswith(".") or
+                    (
+                        (target_spec[0].isalpha() or target_spec[-1].isalpha())
+                        and "." in target_spec
+                    ) or
+                    (nocidr and "/" in target_spec)
+                ):
+                    str_targets.add(target_spec)
                 else:
-                    destination_set.add(ips)
+                    if "-" in target_spec:
+                        start_ip, post_dash_segment = target_spec.split("-")
+                        end_ip = start_ip.rsplit(".", maxsplit=1)[0] + "." + \
+                            post_dash_segment
+                        target_spec = IPRange(start_ip, end_ip)
+                    elif "*" in target_spec:
+                        target_spec = glob_to_iprange(target_spec)
+                    else:  # str IP addresses and str CIDR notations
+                        target_spec = (target_spec,)
+                    ipset_targets.update(IPSet(target_spec))
+            return (str_targets, ipset_targets)
+
+        str_targets, ipset_targets = parse_and_group_target_specs(
+            target_specs=target_specs,
+            nocidr=arguments.nocidr,
+        )
+
+        if arguments.exclusions or arguments.exclusions_list:
+            if arguments.exclusions:
+                exclusion_specs = pre_process_target_spec(arguments.exclusions)
+            elif arguments.exclusions_list:
+                exclusion_specs = (
+                    exclusion_spec.strip() for exclusion_spec in
+                    arguments.exclusions_list
+                )
+                exclusion_specs = (
+                    pre_process_target_spec(exclusion_spec) for exclusion_spec
+                    in exclusion_specs if exclusion_spec
+                )
+                exclusion_specs = itertools.chain(*exclusion_specs)
+            str_exclusions, ipset_exclusions = parse_and_group_target_specs(
+                target_specs=exclusion_specs,
+                nocidr=arguments.nocidr,
+            )
+            str_targets -= str_exclusions
+            ipset_targets -= ipset_exclusions
+
+        return (str_targets, ipset_targets)
 
     @staticmethod
-    def _process_clean_targets(commands, dirty_targets):
-        def add_task(t, item_list, my_command_set):
-            if t not in my_command_set:
-                my_command_set.add(t)
-                item_list.append(t)
-
-        variable = '_cleantarget_'
-        tasks = []
-        temp = set()  # this helps avoid command duplication and re/deconstructing of temporary set
-        # changed order to ensure different combinations of commands aren't created
-        for dirty_target in dirty_targets:
-            for command in commands:
-                new_task = command.clone()
-                if command.name().find(variable) != -1:
-                    new_task.replace("_target_", dirty_target)
-
-                    # replace all https:// or https:// with nothing
-                    dirty_target = dirty_target.replace('http://', '')
-                    dirty_target = dirty_target.replace('https://', '')
-                    # chop off all trailing '/', if any.
-                    while dirty_target.endswith('/'):
-                        dirty_target = dirty_target.strip('/')
-                    # replace all remaining '/' with '-' and that's enough cleanup for the day
-                    clean_target = dirty_target.replace('/', '-')
-                    new_task.replace(variable, clean_target)
-                    add_task(new_task, tasks, temp)
-                else:
-                    new_task.replace("_target_", dirty_target)
-                    add_task(new_task, tasks, temp)
-
-        return tasks
-
-    @staticmethod
-    def _replace_variable_with_commands(commands, variable, replacements):
-        def add_task(t, item_list, my_set):
-            if t not in my_set:
-                my_set.add(t)
-                item_list.append(t)
-
-        tasks = []
-        temp_set = set()  # to avoid duplicates
-        for command in commands:
-            for replacement in replacements:
-                if command.name().find(variable) != -1:
-                    new_task = command.clone()
-                    new_task.replace(variable, str(replacement))
-                    add_task(new_task, tasks, temp_set)
-                else:
-                    add_task(command, tasks, temp_set)
-        return tasks
-
-    @staticmethod
-    def _replace_variable_array(commands, variable, replacement):
-        if variable not in sample(commands, 1)[0]:
-            return
-
-        for counter, command in enumerate(commands):
-            command.replace(variable, str(replacement[counter]))
-
-    @staticmethod
-    def process_commands(arguments):
-        commands = list()
-        ranges = set()
-        targets = set()
-        exclusions_ranges = set()
-        exclusions = set()
-
+    def process_data_for_tasks_iterator(arguments):
         # removing the trailing slash if any
         if arguments.output and arguments.output[-1] == "/":
             arguments.output = arguments.output[:-1]
 
-        if arguments.port:
-            ports = InputHelper._process_port(arguments.port)
+        ports = InputHelper._process_port(arguments.port) if arguments.port \
+            else None
 
-        if arguments.realport:
-            real_ports = InputHelper._process_port(arguments.realport)
+        real_ports = InputHelper._process_port(arguments.realport) if \
+            arguments.realport else None
 
-        # process targets first
-        if arguments.target:
-            ranges.add(arguments.target)
-        else:
-            target_file = arguments.target_list
-            if not isinstance(target_file, TextIOWrapper):            
-                if not sys.stdin.isatty():
-                    target_file = sys.stdin
-            ranges.update([target.strip() for target in target_file if target.strip()])
+        str_targets, ipset_targets = InputHelper._process_targets(
+            arguments=arguments,
+        )
+        targets_count = len(str_targets) + ipset_targets.size
 
-        # process exclusions first
-        if arguments.exclusions:
-            exclusions_ranges.add(arguments.exclusions)
-        else:
-            if arguments.exclusions_list:
-                for exclusion in arguments.exclusions_list:
-                    exclusion = exclusion.strip()
-                    if exclusion:
-                        exclusions.add(exclusion)
-
-        # removing elements that may have spaces (helpful for easily processing comma notation)
-        InputHelper._pre_process_hosts(ranges, targets, arguments)
-        InputHelper._pre_process_hosts(exclusions_ranges, exclusions, arguments)
-
-        # difference operation
-        targets -= exclusions
-
-        if len(targets) == 0:
+        if not targets_count:
             raise Exception("No target provided, or empty target list")
 
         if arguments.random:
             files = InputHelper._get_files_from_directory(arguments.random)
             random_file = choice(files)
-
-        if arguments.command:
-            commands.append(Task(arguments.command.rstrip('\n')))
         else:
-            commands = InputHelper._pre_process_commands(arguments.command_list)
+            random_file = None
 
-        # commands = InputHelper._replace_variable_with_commands(commands, "_target_", targets)
-        commands = InputHelper._process_clean_targets(commands, targets)
-        commands = InputHelper._replace_variable_with_commands(commands, "_host_", targets)
-
-        if arguments.port:
-            commands = InputHelper._replace_variable_with_commands(commands, "_port_", ports)
-
-        if arguments.realport:
-            commands = InputHelper._replace_variable_with_commands(commands, "_realport_", real_ports)
-        
-        if arguments.random:
-            commands = InputHelper._replace_variable_with_commands(commands, "_random_", [random_file])
-
-        if arguments.output:
-            commands = InputHelper._replace_variable_with_commands(commands, "_output_", [arguments.output])
+        tasks = list()
+        if arguments.command:
+            tasks.append(Task(arguments.command.rstrip('\n')))
+        else:
+            tasks = InputHelper._pre_process_commands(arguments.command_list)
 
         if arguments.proto:
-            if "," in arguments.proto:
-                protocols = arguments.proto.split(",")
-            else:
-                protocols = arguments.proto
-            commands = InputHelper._replace_variable_with_commands(commands, "_proto_", protocols)
+            protocols = arguments.proto.split(",")
+            # if "," not in arguments.proto, [arguments.proto] is returned by
+            # .split()
+        else:
+            protocols = None
 
-        # process proxies
-        if arguments.proxy_list:
-            proxy_list = [proxy for proxy in arguments.proxy_list if proxy.strip()]
-            if len(proxy_list) < len(commands):
-                proxy_list = ceil(len(commands) / len(proxy_list)) * proxy_list
+        # Calculate the tasks count, as we will not have access to the len() of
+        # the tasks iterator
+        tasks_count = len(tasks) * targets_count
+        if ports:
+            tasks_count *= len(ports)
+        if real_ports:
+            tasks_count *= len(real_ports)
+        if protocols:
+            tasks_count *= len(protocols)
 
-            InputHelper._replace_variable_array(commands, "_proxy_", proxy_list)
-        return commands
+        return {
+            "tasks": tasks,
+            "str_targets": str_targets,
+            "ipset_targets": ipset_targets,
+            "ports": ports,
+            "real_ports": real_ports,
+            "random_file": random_file,
+            "output": arguments.output,
+            "protocols": protocols,
+            "proxy_list": arguments.proxy_list,
+            "tasks_count": tasks_count,
+        }
+
+    @staticmethod
+    def make_tasks_generator_func(tasks_data):
+        tasks_generator_func = functools.partial(
+            InputHelper._replace_target_variables_in_commands,
+            tasks=tasks_data["tasks"],
+            str_targets=tasks_data["str_targets"],
+            ipset_targets=tasks_data["ipset_targets"],
+        )
+
+        ports = tasks_data["ports"]
+        if ports:
+            tasks_generator_func = functools.partial(
+                InputHelper._replace_variable_in_commands,
+                tasks_generator_func=tasks_generator_func,
+                variable="_port_",
+                replacements=ports,
+            )
+
+        real_ports = tasks_data["real_ports"]
+        if real_ports:
+            tasks_generator_func = functools.partial(
+                InputHelper._replace_variable_in_commands,
+                tasks_generator_func=tasks_generator_func,
+                variable="_realport_",
+                replacements=real_ports,
+            )
+
+        random_file = tasks_data["random_file"]
+        if random_file:
+            tasks_generator_func = functools.partial(
+                InputHelper._replace_variable_in_commands,
+                tasks_generator_func=tasks_generator_func,
+                variable="_random_",
+                replacements=[random_file],
+            )
+
+        output = tasks_data["output"]
+        if output:
+            tasks_generator_func = functools.partial(
+                InputHelper._replace_variable_in_commands,
+                tasks_generator_func=tasks_generator_func,
+                variable="_output_",
+                replacements=[output],
+            )
+
+        protocols = tasks_data["protocols"]
+        if protocols:
+            tasks_generator_func = functools.partial(
+                InputHelper._replace_variable_in_commands,
+                tasks_generator_func=tasks_generator_func,
+                variable="_proto_",
+                replacements=protocols,
+            )
+
+        proxy_list = tasks_data["proxy_list"]
+        if proxy_list:
+            proxy_list_iterator = itertools.cycle(
+                proxy for proxy in (
+                    proxy.strip() for proxy in proxy_list
+                ) if proxy
+            )
+            tasks_generator_func = functools.partial(
+                InputHelper._replace_variable_array,
+                tasks_generator_func=tasks_generator_func,
+                variable="_proxy_",
+                replacements_iterator=proxy_list_iterator,
+            )
+
+        return tasks_generator_func
 
 
 class InputParser(object):

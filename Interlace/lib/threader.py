@@ -66,17 +66,17 @@ class Worker(object):
         self.tqdm = tqdm
 
     def __call__(self):
+        queue = self.queue
         while True:
             try:
-                # get task from queue
-                task = self.queue.pop(0)
+                task = next(queue)
                 if isinstance(self.tqdm, tqdm):
                     self.tqdm.update(1)
                     # run task
                     task.run(self.tqdm)
                 else:
                     task.run()
-            except IndexError:
+            except StopIteration:
                 break
 
 
@@ -90,17 +90,19 @@ class Pool(object):
         if max_workers <= 0:
             raise ValueError("Workers must be >= 1")
 
+        tasks_count = next(task_queue)
+
         # check if the queue is empty
-        if not task_queue:
+        if not tasks_count:
             raise ValueError("The queue is empty")
 
         self.queue = task_queue
         self.timeout = timeout
         self.output = output
-        self.max_workers = min(len(task_queue), max_workers)
+        self.max_workers = min(tasks_count, max_workers)
 
         if not progress_bar:
-            self.tqdm = tqdm(total=len(task_queue))
+            self.tqdm = tqdm(total=tasks_count)
         else:
             self.tqdm = True
 
