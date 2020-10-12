@@ -187,10 +187,7 @@ class InputHelper(object):
             for target_spec in target_specs:
                 if (
                     target_spec.startswith(".") or
-                    (
-                        (target_spec[0].isalpha() or target_spec[-1].isalpha())
-                        and "." in target_spec
-                    ) or
+                    (target_spec[0].isalpha() or target_spec[-1].isalpha()) or
                     (nocidr and "/" in target_spec)
                 ):
                     str_targets.add(target_spec)
