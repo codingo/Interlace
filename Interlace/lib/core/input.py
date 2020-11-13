@@ -1,5 +1,7 @@
 import functools
+from functools import partial
 import itertools
+from itertools import chain,cycle
 import os.path
 import sys
 from io import TextIOWrapper
@@ -19,7 +21,7 @@ class InputHelper(object):
     @staticmethod
     def check_path(parser, arg):
         if not os.path.exists(arg):
-            parser.error("The path %s does not exist!" % arg)
+            parser.error(f"The path {arg} does not exist!")
         else:
             return arg
 
@@ -33,9 +35,9 @@ class InputHelper(object):
         try:
             ivalue = int(arg)
             if ivalue <= 0:
-                raise parser.ArgumentTypeError("%s is not a valid positive integer!" % arg)
+                raise parser.ArgumentTypeError(f"{arg} is not a valid positive integer!")
         except ValueError as e:
-            raise parser.ArgumentValueError("%s is not a a number!" % arg)
+            raise parser.ArgumentValueError(f"{arg} is not a a number!")
 
         return arg
 
@@ -76,7 +78,7 @@ class InputHelper(object):
         blocker = None
         for command in command_list:
             command = str(command).strip()
-            if len(command) == 0:
+            if not command:
                 continue
             # the start or end of a command block
             if (command.startswith('_block:') and command.endswith('_')) or\
@@ -93,7 +95,7 @@ class InputHelper(object):
                     for task in tasks:
                         task.wait_for(task_block)
                 task_block += tasks
-                if len(tasks) > 0:
+                if tasks:
                     sibling = tasks[-1]
                 continue
             else:
@@ -122,7 +124,7 @@ class InputHelper(object):
         for task in tasks:
             command = task.name()
             if TARGET_VAR in command or HOST_VAR in command:
-                for dirty_target in itertools.chain(str_targets, ipset_targets):
+                for dirty_target in chain(str_targets, ipset_targets):
                     yielded_task = task.clone()
                     dirty_target = str(dirty_target)
                     yielded_task.replace(TARGET_VAR, dirty_target)
@@ -179,7 +181,7 @@ class InputHelper(object):
                 pre_process_target_spec(target_spec) for target_spec in
                 target_specs if target_spec
             )
-            target_specs = itertools.chain(*target_specs)
+            target_specs = chain(*target_specs)
 
         def parse_and_group_target_specs(target_specs, nocidr):
             str_targets = set()
@@ -221,7 +223,7 @@ class InputHelper(object):
                     pre_process_target_spec(exclusion_spec) for exclusion_spec
                     in exclusion_specs if exclusion_spec
                 )
-                exclusion_specs = itertools.chain(*exclusion_specs)
+                exclusion_specs = chain(*exclusion_specs)
             str_exclusions, ipset_exclusions = parse_and_group_target_specs(
                 target_specs=exclusion_specs,
                 nocidr=arguments.nocidr,
@@ -295,7 +297,7 @@ class InputHelper(object):
 
     @staticmethod
     def make_tasks_generator_func(tasks_data):
-        tasks_generator_func = functools.partial(
+        tasks_generator_func = partial(
             InputHelper._replace_target_variables_in_commands,
             tasks=tasks_data["tasks"],
             str_targets=tasks_data["str_targets"],
@@ -304,7 +306,7 @@ class InputHelper(object):
 
         ports = tasks_data["ports"]
         if ports:
-            tasks_generator_func = functools.partial(
+            tasks_generator_func = partial(
                 InputHelper._replace_variable_in_commands,
                 tasks_generator_func=tasks_generator_func,
                 variable="_port_",
@@ -313,7 +315,7 @@ class InputHelper(object):
 
         real_ports = tasks_data["real_ports"]
         if real_ports:
-            tasks_generator_func = functools.partial(
+            tasks_generator_func = partial(
                 InputHelper._replace_variable_in_commands,
                 tasks_generator_func=tasks_generator_func,
                 variable="_realport_",
@@ -322,7 +324,7 @@ class InputHelper(object):
 
         random_file = tasks_data["random_file"]
         if random_file:
-            tasks_generator_func = functools.partial(
+            tasks_generator_func = partial(
                 InputHelper._replace_variable_in_commands,
                 tasks_generator_func=tasks_generator_func,
                 variable="_random_",
@@ -331,7 +333,7 @@ class InputHelper(object):
 
         output = tasks_data["output"]
         if output:
-            tasks_generator_func = functools.partial(
+            tasks_generator_func = partial(
                 InputHelper._replace_variable_in_commands,
                 tasks_generator_func=tasks_generator_func,
                 variable="_output_",
@@ -340,7 +342,7 @@ class InputHelper(object):
 
         protocols = tasks_data["protocols"]
         if protocols:
-            tasks_generator_func = functools.partial(
+            tasks_generator_func = partial(
                 InputHelper._replace_variable_in_commands,
                 tasks_generator_func=tasks_generator_func,
                 variable="_proto_",
@@ -349,12 +351,12 @@ class InputHelper(object):
 
         proxy_list = tasks_data["proxy_list"]
         if proxy_list:
-            proxy_list_iterator = itertools.cycle(
+            proxy_list_iterator = cycle(
                 proxy for proxy in (
                     proxy.strip() for proxy in proxy_list
                 ) if proxy
             )
-            tasks_generator_func = functools.partial(
+            tasks_generator_func = partial(
                 InputHelper._replace_variable_array,
                 tasks_generator_func=tasks_generator_func,
                 variable="_proxy_",

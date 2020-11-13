@@ -4,7 +4,6 @@ from multiprocessing import Event
 
 from tqdm import tqdm
 
-
 class Task(object):
     def __init__(self, command):
         self.task = command
@@ -107,7 +106,7 @@ class Pool(object):
             self.tqdm = True
 
     def run(self):
-        workers = [Worker(self.queue, self.timeout, self.output, self.tqdm) for w in range(self.max_workers)]
+        workers = (Worker(self.queue, self.timeout, self.output, self.tqdm) for w in range(self.max_workers)) #generators instead of list for improved memory, delete this comment afterwards
 
         # run
         with ThreadPoolExecutor(self.max_workers) as executors:

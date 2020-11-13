@@ -12,18 +12,17 @@ def task_queue_generator_func(arguments, output, repeat):
     tasks_count = tasks_data["tasks_count"]
     yield tasks_count
     tasks_generator_func = InputHelper.make_tasks_generator_func(tasks_data)
-    for i in range(repeat):
+    for _ in range(repeat):
         tasks_iterator = tasks_generator_func()
         for task in tasks_iterator:
             output.terminal(Level.THREAD, task.name(), "Added to Queue")
             yield task
-    print('Generated {} commands in total'.format(tasks_count))
-    print('Repeat set to {}'.format(repeat))
+    print(f'Generated {tasks_count} commands in total')
+    print(f'Repeat set to {repeat}')
 
 
 def main():
-    parser = InputParser()
-    arguments = parser.parse(argv[1:])
+    arguments = InputParser().parse(argv[1:])
     output = OutputHelper(arguments)
 
     output.print_banner()
