@@ -1,6 +1,4 @@
-import functools
 from functools import partial
-import itertools
 from itertools import chain,cycle
 import os.path
 import sys
