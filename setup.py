@@ -10,7 +10,7 @@ def dependencies(imported_file):
 
 
 with open("README.md") as file:
-    num_installed = False
+    num_installed = True
     try:
         import numpy
         num_installed = True
