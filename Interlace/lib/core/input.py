@@ -48,42 +48,6 @@ class InputHelper(object):
         return files
 
     @staticmethod
-    def _get_ips_from_range(ip_range):
-        ips = set()
-        ip_range = ip_range.split("-")
-
-        # parsing the above structure into an array and then making into an IP address with the end value
-        end_ip = ".".join(ip_range[0].split(".")[0:-1]) + "." + ip_range[1]
-
-        # creating an IPRange object to get all IPs in between
-        range_obj = IPRange(ip_range[0], end_ip)
-
-        for ip in range_obj:
-            ips.add(str(ip))
-
-        return ips
-
-    @staticmethod
-    def _get_ips_from_glob(glob_ips):
-        ip_glob = IPGlob(glob_ips)
-
-        ips = set()
-
-        for ip in ip_glob:
-            ips.add(str(ip))
-
-        return ips
-
-    @staticmethod
-    def _get_cidr_to_ips(cidr_range):
-        (ip, cidr) = cidr_range.split("/")
-        mask = 32 - int(cidr)
-        first_ip = struct.unpack(">I", socket.inet_aton(ip))[0]
-        last_ip = first_ip | ((1 << mask) - 1)
-        ips = frozenset([socket.inet_ntoa(struct.pack('>I', x)) for x in range(first_ip, last_ip)])
-        return ips
-
-    @staticmethod
     def _process_port(port_type):
         if "," in port_type:
             return port_type.split(",")
@@ -215,8 +179,9 @@ class InputHelper(object):
             target_specs = itertools.chain(*target_specs)
 
         def parse_and_group_target_specs(target_specs, nocidr):
+            # issue #131 lies here
             str_targets = set()
-            ipset_targets = IPSet()
+            ips_list = list()
             for target_spec in target_specs:
                 if (
                     target_spec.startswith(".") or
@@ -233,9 +198,16 @@ class InputHelper(object):
                     elif "*" in target_spec:
                         target_spec = glob_to_iprange(target_spec)
                     else:  # str IP addresses and str CIDR notations
-                        target_spec = (target_spec,)
-                    ipset_targets.update(IPSet(target_spec))
-            return (str_targets, ipset_targets)
+                        if "/" in target_spec:
+                            # CIDR
+                            target_spec = IPSet((target_spec,))
+                        else:
+                            target_spec = [target_spec]
+                    
+                    for i in target_spec:
+                        ips_list.append(str(i))
+                    print(f"updating: {target_spec}")
+            return (str_targets, set(ips_list))
 
         str_targets, ipset_targets = parse_and_group_target_specs(
             target_specs=target_specs,
@@ -259,6 +231,7 @@ class InputHelper(object):
                 target_specs=exclusion_specs,
                 nocidr=arguments.nocidr,
             )
+
             str_targets -= str_exclusions
             ipset_targets -= ipset_exclusions
 
@@ -279,7 +252,7 @@ class InputHelper(object):
         str_targets, ipset_targets = InputHelper._process_targets(
             arguments=arguments,
         )
-        targets_count = len(str_targets) + ipset_targets.size
+        targets_count = len(str_targets) + len(ipset_targets)
 
         if not targets_count:
             raise Exception("No target provided, or empty target list")
