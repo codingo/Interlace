@@ -179,7 +179,6 @@ class InputHelper(object):
             target_specs = itertools.chain(*target_specs)
 
         def parse_and_group_target_specs(target_specs, nocidr):
-            # issue #131 lies here
             str_targets = set()
             ips_list = list()
             for target_spec in target_specs:
@@ -199,7 +198,6 @@ class InputHelper(object):
                         target_spec = glob_to_iprange(target_spec)
                     else:  # str IP addresses and str CIDR notations
                         if "/" in target_spec:
-                            # CIDR
                             target_spec = IPSet((target_spec,))
                         else:
                             target_spec = [target_spec]
@@ -271,8 +269,6 @@ class InputHelper(object):
 
         if arguments.proto:
             protocols = arguments.proto.split(",")
-            # if "," not in arguments.proto, [arguments.proto] is returned by
-            # .split()
         else:
             protocols = None
 
