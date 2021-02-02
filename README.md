@@ -76,6 +76,7 @@ The following variables will be replaced in commands at runtime:
 | Variable  | Replacement                                                             |
 |-----------|-------------------------------------------------------------------------|
 | \_target\_  | Replaced with the expanded target list that the current thread is running against  |
+| \_cleantarget\_  | Replaced with target cleanded from http:// or https://  |
 | \_host\_ | Works the same as \_target\_, and can be used interchangeably |
 | \_output\_   | Replaced with the output folder variable from Interlace              |
 | \_port\_     | Replaced with the expanded port variable from Interlace                       |
