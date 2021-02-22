@@ -47,23 +47,24 @@ class Task(object):
         return self.self_lock
 
     def _run_task(self, t=False):
-        if t:
-            s = subprocess.Popen(self.task, shell=True,
-                                 stdout=subprocess.PIPE,
-                                 encoding="utf-8")
-            out, _ = s.communicate()
-            if out != "":
+        s = subprocess.Popen(self.task, shell=True,
+                             stdout=subprocess.PIPE,
+                             encoding="utf-8")
+        out, _ = s.communicate()
+
+        if out != "":
+            if t:
                 t.write(out)
-        else:
-            subprocess.Popen(self.task, shell=True)
+            else:
+                print(out)
 
 
 class Worker(object):
-    def __init__(self, task_queue, timeout, output, tqdm):
+    def __init__(self, task_queue, timeout, output, tq):
         self.queue = task_queue
         self.timeout = timeout
         self.output = output
-        self.tqdm = tqdm
+        self.tqdm = tq
 
     def __call__(self):
         queue = self.queue
