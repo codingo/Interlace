@@ -49,8 +49,7 @@ class Task(object):
     def _run_task(self, t=False):
         s = subprocess.Popen(self.task, shell=True,
                              stdout=subprocess.PIPE,
-                             encoding="utf-8",
-                             executable="/bin/bash")
+                             encoding="utf-8")
         out, _ = s.communicate()
 
         if out != "":
