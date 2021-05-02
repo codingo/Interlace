@@ -4,6 +4,7 @@ import os.path
 import socket
 import struct
 import sys
+import re 
 from argparse import ArgumentParser
 from io import TextIOWrapper
 from random import choice
@@ -158,6 +159,7 @@ class InputHelper(object):
             target_spec = "".join(
                 filter(lambda char: char not in (" ", "\n"), target_spec)
             )
+            target_spec = re.sub(",$|^,","",target_spec)
             return target_spec.split(",")
             # If ","s not in target_spec, this returns [target_spec], so this
             # static method always returns a list
