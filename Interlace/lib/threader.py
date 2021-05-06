@@ -4,7 +4,12 @@ from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import Event
 from tqdm import tqdm
 
-shell = os.getenv("SHELL") if os.getenv("SHELL") else "/bin/sh"
+import platform
+
+if platform.system().lower() == 'linux':
+    shell = os.getenv("SHELL") if os.getenv("SHELL") else "/bin/sh"
+else:
+    shell = None
 
 class Task(object):
     def __init__(self, command):
