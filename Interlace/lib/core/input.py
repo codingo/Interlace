@@ -130,6 +130,14 @@ class InputHelper(object):
                             "https://", "").rstrip("/").replace("/", "-"),
                     )
                     yield yielded_task
+            elif CLEANTARGET_VAR in command:
+                for dirty_target in itertools.chain(str_targets, ipset_targets):
+                    yielded_task = task.clone()
+                    dirty_target = str(dirty_target)
+                    yielded_task.replace(CLEANTARGET_VAR,dirty_target.replace(
+                        "http://", "").replace("https://", "").rstrip("/").replace("/", "-"),
+                        )
+                    yield yielded_task
             else:
                 yield task
 
