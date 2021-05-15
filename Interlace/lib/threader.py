@@ -1,9 +1,15 @@
 import subprocess
+import os
 from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import Event
-
 from tqdm import tqdm
 
+import platform
+
+if platform.system().lower() == 'linux':
+    shell = os.getenv("SHELL") if os.getenv("SHELL") else "/bin/sh"
+else:
+    shell = None
 
 class Task(object):
     def __init__(self, command):
@@ -49,7 +55,8 @@ class Task(object):
     def _run_task(self, t=False):
         s = subprocess.Popen(self.task, shell=True,
                              stdout=subprocess.PIPE,
-                             encoding="utf-8")
+                             encoding="utf-8",
+                             executable=shell)
         out, _ = s.communicate()
 
         if out != "":
