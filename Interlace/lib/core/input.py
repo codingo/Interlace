@@ -212,7 +212,6 @@ class InputHelper(object):
                     
                     for i in target_spec:
                         ips_list.append(str(i))
-                    print(f"updating: {target_spec}")
             return (str_targets, set(ips_list))
 
         str_targets, ipset_targets = parse_and_group_target_specs(
