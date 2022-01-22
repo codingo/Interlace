@@ -18,6 +18,7 @@ def task_queue_generator_func(arguments, output, repeat):
             output.terminal(Level.THREAD, task.name(), "Added to Queue")
             yield task
 
+
 def main():
     parser = InputParser()
     arguments = parser.parse(argv[1:])

@@ -11,6 +11,7 @@ if platform.system().lower() == 'linux':
 else:
     shell = None
 
+
 class Task(object):
     def __init__(self, command, silent=False):
         self.task = command

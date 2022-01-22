@@ -209,7 +209,7 @@ class InputHelper(object):
                             target_spec = IPSet((target_spec,))
                         else:
                             target_spec = [target_spec]
-                    
+
                     for i in target_spec:
                         ips_list.append(str(i))
             return (str_targets, set(ips_list))

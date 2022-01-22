@@ -42,7 +42,7 @@ class OutputHelper(object):
            'target': target,
            'command': command,
            'message': message,
-            'leader': leader
+           'leader': leader
         }
 
         if not self.silent:
@@ -50,7 +50,7 @@ class OutputHelper(object):
                 template = '[{time}] {leader} [{target}] {command} {message}'
             else:
                 template = '[{time}] {leader} [{target}] {command} {message}'
-            
+
             print(template.format(**format_args))
 
 
