@@ -17,9 +17,6 @@ def task_queue_generator_func(arguments, output, repeat):
         for task in tasks_iterator:
             output.terminal(Level.THREAD, task.name(), "Added to Queue")
             yield task
-    print('Generated {} commands in total'.format(tasks_count))
-    print('Repeat set to {}'.format(repeat))
-
 
 def main():
     parser = InputParser()
