@@ -36,6 +36,7 @@ def main():
         arguments.timeout,
         output,
         arguments.sober,
+        silent=arguments.silent,
     )
     pool.run()
 
