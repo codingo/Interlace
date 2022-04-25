@@ -11,11 +11,13 @@ if platform.system().lower() == 'linux':
 else:
     shell = None
 
+
 class Task(object):
-    def __init__(self, command):
+    def __init__(self, command, silent=False):
         self.task = command
         self.self_lock = None
         self.sibling_locks = []
+        self.silent = silent
 
     def __cmp__(self, other):
         return self.name() == other.name()
@@ -24,7 +26,7 @@ class Task(object):
         return self.task.__hash__()
 
     def clone(self):
-        new_task = Task(self.task)
+        new_task = Task(self.task, self.silent)
         new_task.self_lock = self.self_lock
         new_task.sibling_locks = self.sibling_locks
         return new_task
@@ -53,11 +55,20 @@ class Task(object):
         return self.self_lock
 
     def _run_task(self, t=False):
-        s = subprocess.Popen(self.task, shell=True,
-                             stdout=subprocess.PIPE,
-                             encoding="utf-8",
-                             executable=shell)
-        out, _ = s.communicate()
+        if self.silent:
+            s = subprocess.Popen(self.task, shell=True,
+                                 stdout=subprocess.DEVNULL,
+                                 encoding="utf-8",
+                                 executable=shell)
+            out, _ = s.communicate()
+
+            return
+        else:
+            s = subprocess.Popen(self.task, shell=True,
+                                 stdout=subprocess.PIPE,
+                                 encoding="utf-8",
+                                 executable=shell)
+            out, _ = s.communicate()
 
         if out != "":
             if t:
@@ -89,7 +100,7 @@ class Worker(object):
 
 
 class Pool(object):
-    def __init__(self, max_workers, task_queue, timeout, output, progress_bar):
+    def __init__(self, max_workers, task_queue, timeout, output, progress_bar, silent=False):
 
         # convert stdin input to integer
         max_workers = int(max_workers)
@@ -109,7 +120,7 @@ class Pool(object):
         self.output = output
         self.max_workers = min(tasks_count, max_workers)
 
-        if not progress_bar:
+        if not progress_bar and not silent:
             self.tqdm = tqdm(total=tasks_count)
         else:
             self.tqdm = True

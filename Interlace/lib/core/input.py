@@ -61,7 +61,7 @@ class InputHelper(object):
         return [port_type]
 
     @staticmethod
-    def _pre_process_commands(command_list, task_name=None, is_global_task=True):
+    def _pre_process_commands(command_list, task_name=None, is_global_task=True, silent=False):
         """
         :param command_list:
         :param task_name: all tasks have 'scope' and all scopes have unique names, global scope defaults None
@@ -85,7 +85,7 @@ class InputHelper(object):
                 if task_name and task_name == new_task_name:
                     return task_block
                 # otherwise pre-process all the commands in this new `new_task_name` block
-                tasks = InputHelper._pre_process_commands(command_list, new_task_name, False)
+                tasks = InputHelper._pre_process_commands(command_list, new_task_name, False, silent)
                 if blocker:
                     for task in tasks:
                         task.wait_for(task_block)
@@ -99,7 +99,7 @@ class InputHelper(object):
                 if command == '_blocker_':
                     blocker = sibling
                     continue
-                task = Task(command)
+                task = Task(command, silent)
                 # if we're in the global scope and there was a previous _blocker_ encountered, we wait for the last
                 # child of the block
                 if is_global_task and blocker:
@@ -209,7 +209,7 @@ class InputHelper(object):
                             target_spec = IPSet((target_spec,))
                         else:
                             target_spec = [target_spec]
-                    
+
                     for i in target_spec:
                         ips_list.append(str(i))
             return (str_targets, set(ips_list))
@@ -270,9 +270,9 @@ class InputHelper(object):
 
         tasks = list()
         if arguments.command:
-            tasks.append(Task(arguments.command.rstrip('\n')))
+            tasks.append(Task(arguments.command.rstrip('\n'), arguments.silent))
         else:
-            tasks = InputHelper._pre_process_commands(arguments.command_list)
+            tasks = InputHelper._pre_process_commands(arguments.command_list, silent=arguments.silent)
 
         if arguments.proto:
             protocols = arguments.proto.split(",")
