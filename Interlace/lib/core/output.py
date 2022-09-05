@@ -1,9 +1,6 @@
 from enum import IntEnum
 from time import localtime, strftime
 
-from colorclass import Color
-from colorclass import disable_all_colors
-
 from Interlace.lib.core.__version__ import __version__
 
 
@@ -22,9 +19,7 @@ class bcolors:
 
 class OutputHelper(object):
     def __init__(self, arguments):
-        if arguments.nocolor:
-            disable_all_colors()
-
+        self._no_color = arguments.nocolor
         self.verbose = arguments.verbose
         self.silent = arguments.silent
         self.seperator = "====================================================="
@@ -42,11 +37,18 @@ class OutputHelper(object):
         if level == 0 and not self.verbose:
             return
 
-        formatting = {
-            0: f'{bcolors.OKBLUE}[VERBOSE]{bcolors.ENDC}',
-            1: f'{bcolors.OKGREEN}[THREAD]{bcolors.ENDC}',
-            3: f'{bcolors.FAIL}[ERROR]{bcolors.ENDC}'
-        }
+        if self._no_color:
+            formatting = {
+                0: f'{bcolors.OKBLUE}[VERBOSE]{bcolors.ENDC}',
+                1: f'{bcolors.OKGREEN}[THREAD]{bcolors.ENDC}',
+                3: f'{bcolors.FAIL}[ERROR]{bcolors.ENDC}'
+            }
+        else:
+            formatting = {
+                0: '[VERBOSE]',
+                1: '[THREAD]',
+                3: '[ERROR]'
+            }
 
         leader = formatting.get(level, '[#]')
 
