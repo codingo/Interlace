@@ -37,7 +37,7 @@ class OutputHelper(object):
         if level == 0 and not self.verbose:
             return
 
-        if self._no_color:
+        if not self._no_color:
             formatting = {
                 0: f'{bcolors.OKBLUE}[VERBOSE]{bcolors.ENDC}',
                 1: f'{bcolors.OKGREEN}[THREAD]{bcolors.ENDC}',
