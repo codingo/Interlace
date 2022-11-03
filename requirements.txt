@@ -1,3 +1,2 @@
-colorclass==2.2.2
 netaddr==0.7.20
 tqdm==4.62.3
