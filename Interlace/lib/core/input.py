@@ -121,7 +121,6 @@ class InputHelper(object):
         SAFE_TARGET = "_safe-target_"
         for task in tasks:
             command = task.name()
-            print(command)
             if TARGET_VAR in command or HOST_VAR in command or SAFE_TARGET in command:
                 for dirty_target in itertools.chain(str_targets, ipset_targets):
                     yielded_task = task.clone()
