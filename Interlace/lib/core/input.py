@@ -1,8 +1,6 @@
 import functools
 import itertools
 import os.path
-import socket
-import struct
 import sys
 from argparse import ArgumentParser
 from io import TextIOWrapper
