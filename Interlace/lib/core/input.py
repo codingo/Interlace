@@ -1,8 +1,6 @@
 import functools
 import itertools
 import os.path
-import socket
-import struct
 import sys
 from argparse import ArgumentParser
 from io import TextIOWrapper
@@ -113,12 +111,15 @@ class InputHelper(object):
 
     @staticmethod
     def _replace_target_variables_in_commands(tasks, str_targets, ipset_targets):
+        def starts_and_ends_with(string, character):
+            return string[0] == character and string[-1] == character
         TARGET_VAR = "_target_"
         HOST_VAR = "_host_"
         CLEANTARGET_VAR = "_cleantarget_"
+        SAFE_TARGET = "_safe-target_"
         for task in tasks:
             command = task.name()
-            if TARGET_VAR in command or HOST_VAR in command:
+            if TARGET_VAR in command or HOST_VAR in command or SAFE_TARGET in command:
                 for dirty_target in itertools.chain(str_targets, ipset_targets):
                     yielded_task = task.clone()
                     dirty_target = str(dirty_target)
@@ -129,6 +130,13 @@ class InputHelper(object):
                         dirty_target.replace("http://", "").replace(
                             "https://", "").rstrip("/").replace("/", "-"),
                     )
+
+                    if SAFE_TARGET in command:
+                        if (starts_and_ends_with(dirty_target, "'")) or (starts_and_ends_with(dirty_target, '"')):
+                            pass
+                        else:
+                            dirty_target = f"'{dirty_target}'"
+                        yielded_task.replace(SAFE_TARGET, dirty_target)
                     yield yielded_task
             elif CLEANTARGET_VAR in command:
                 for dirty_target in itertools.chain(str_targets, ipset_targets):

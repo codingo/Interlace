@@ -73,16 +73,17 @@ Alternatively, you can pass targets in via STDIN and neither -t or -tL will be r
 # Variable Replacements
 The following variables will be replaced in commands at runtime:
 
-| Variable  | Replacement                                                             |
-|-----------|-------------------------------------------------------------------------|
-| \_target\_  | Replaced with the expanded target list that the current thread is running against  |
-| \_cleantarget\_  | Replaced with target cleanded from http:// or https://  |
-| \_host\_ | Works the same as \_target\_, and can be used interchangeably |
-| \_output\_   | Replaced with the output folder variable from Interlace              |
-| \_port\_     | Replaced with the expanded port variable from Interlace                       |
-| \_realport\_ | Replaced with the real port variable from Interlace                  |
-| \_proxy\_    | Replaced with the proxy list from Interlace |
-| \_random\_   | Replaced with the randomly chosen file from Interlace | 
+| Variable        | Replacement                                                                           |
+|-----------------|---------------------------------------------------------------------------------------|
+| \_target\_      | Replaced with the expanded target list that the current thread is running against     |
+| \_cleantarget\_ | Replaced with target cleaned from http:// or https://                                 |
+| \_safe-target\_ | Replaced with target automatically quoting for commands, stopping subcommands running |
+| \_host\_        | Works the same as \_target\_, and can be used interchangeably                         |
+| \_output\_      | Replaced with the output folder variable from Interlace                               |
+| \_port\_        | Replaced with the expanded port variable from Interlace                               |
+| \_realport\_    | Replaced with the real port variable from Interlace                                   |
+| \_proxy\_       | Replaced with the proxy list from Interlace                                           |
+| \_random\_      | Replaced with the randomly chosen file from Interlace                                 | 
 
 # Advanced Command File Usage
 Interlace also makes the use of two additional features for controlling execution flow within a command file: `_blocker_` and `_block:<name>_`. Blockers prevent execution of commands listed after them, until all commands before them have completed, and blocks can be used to force sequential execution of commands listed within a block, for a target.
