@@ -15,7 +15,7 @@ def task_queue_generator_func(arguments, output, repeat):
     for i in range(repeat):
         tasks_iterator = tasks_generator_func()
         for task in tasks_iterator:
-            output.terminal(Level.THREAD, task.name(), "Added to Queue")
+            # output.terminal(Level.THREAD, task.name(), "Added to Queue")
             yield task
 
 
@@ -38,6 +38,7 @@ def main():
         output,
         arguments.sober,
         silent=arguments.silent,
+        output_helper=output
     )
     pool.run()
 
